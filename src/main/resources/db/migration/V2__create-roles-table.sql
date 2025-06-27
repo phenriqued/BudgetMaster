@@ -1,0 +1,7 @@
+CREATE TABLE tb_role(
+        id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(50) NOT NULL UNIQUE
+);
+
+INSERT INTO tb_role (name)
+VALUES ('USER'),('ADMIN');
