@@ -10,7 +10,7 @@ import phenriqued.BudgetMaster.Models.UserEntity.User;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "user_family_tb")
+@Table(name = "tb_user_family")
 
 @NoArgsConstructor
 @Getter

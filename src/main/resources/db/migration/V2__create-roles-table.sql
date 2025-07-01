@@ -4,4 +4,9 @@ CREATE TABLE tb_role(
 );
 
 INSERT INTO tb_role (name)
-VALUES ('USER'),('ADMIN');
+VALUES('USER');
+INSERT INTO tb_role (name)
+VALUES('ADMIN');
+
+ALTER TABLE tb_user ADD CONSTRAINT
+    fk_user_role FOREIGN KEY (role_id) REFERENCES tb_role(id);

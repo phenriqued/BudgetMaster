@@ -3,7 +3,7 @@ CREATE TABLE tb_family (
     name VARCHAR(100) NOT NULL
 );
 
-CREATE TABLE user_family_tb (
+CREATE TABLE tb_user_family (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id BIGINT NOT NULL,
     family_id BIGINT NOT NULL,
@@ -15,5 +15,5 @@ CREATE TABLE user_family_tb (
     CONSTRAINT uq_user_family_unique UNIQUE (user_id, family_id)
 );
 
-CREATE INDEX idx_user_family_user_id ON user_family_tb(user_id);
-CREATE INDEX idx_user_family_family_id ON user_family_tb(family_id);
+CREATE INDEX idx_user_family_user_id ON tb_user_family(user_id);
+CREATE INDEX idx_user_family_family_id ON tb_user_family(family_id);
