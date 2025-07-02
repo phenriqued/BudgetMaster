@@ -7,6 +7,7 @@ import phenriqued.BudgetMaster.DTOs.Login.RegisterUserDTO;
 import phenriqued.BudgetMaster.DTOs.Token.TokenDTO;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
 import phenriqued.BudgetMaster.Infra.Security.Service.TokenService;
+import phenriqued.BudgetMaster.Infra.Security.Token.DeviceType;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
 import phenriqued.BudgetMaster.Models.UserEntity.Role.Role;
 import phenriqued.BudgetMaster.Models.UserEntity.Role.RoleName;
@@ -28,7 +29,7 @@ public class SignUpService {
         Role role = roleRepository.findByName(RoleName.USER)
                 .orElseThrow(() -> new BudgetMasterSecurityException("[ERROR] error role user."));
         var newUser = userRepository.save(new User(registerUserDTO, password, role));
-        String token = tokenService.generatedTokenJWT(new UserDetailsImpl(newUser));
-        return new TokenDTO(token);
+        return tokenService.generatedTokens(new UserDetailsImpl(newUser), DeviceType.valueOf(registerUserDTO.deviceType().toUpperCase()),
+                registerUserDTO.deviceIdentifier());
     }
 }

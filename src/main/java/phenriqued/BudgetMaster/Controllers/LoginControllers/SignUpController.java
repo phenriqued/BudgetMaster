@@ -1,5 +1,6 @@
 package phenriqued.BudgetMaster.Controllers.LoginControllers;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +21,7 @@ public class SignUpController {
     }
 
     @GetMapping("/signup")
-    public ResponseEntity<TokenDTO> signUp(@RequestBody RegisterUserDTO registerUserDTO){
+    public ResponseEntity<TokenDTO> signUp(@RequestBody @Valid RegisterUserDTO registerUserDTO){
         return ResponseEntity.ok(service.registerUser(registerUserDTO));
     }
 }
