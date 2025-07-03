@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import phenriqued.BudgetMaster.Infra.Security.Token.DeviceType;
 import phenriqued.BudgetMaster.Infra.Security.Token.RefreshToken;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
+import phenriqued.BudgetMaster.Models.UserEntity.User;
 import phenriqued.BudgetMaster.Repositories.SecurityData.RefreshTokenRepository;
 
 import java.time.LocalDateTime;
@@ -31,8 +32,14 @@ public class RefreshTokenService {
             existsToken.attToken(token, expirationToken);
             repository.save(existsToken);
         }
-
         return token;
+    }
+
+    public String generatedActivationToken(User user){
+        String token = UUID.randomUUID().toString().replaceAll("-", "");
+        String deviceIdentifier = "internal-activation-user-"+user.getId();
+        return repository.save( new RefreshToken(user, token, DeviceType.USER_ACTIVATION,
+                deviceIdentifier, LocalDateTime.now().plusMinutes(10))).getToken();
     }
 
 

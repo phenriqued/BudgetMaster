@@ -85,8 +85,7 @@ public class LoginGoogleService {
 
     private RegisterUserDTO getUserData(LoginGoogleRequestDTO loginGoogleDTO){
         var jwtDecoder = JWT.decode(loginGoogleDTO.token());
-        return new RegisterUserDTO(jwtDecoder.getClaim("name").asString(), jwtDecoder.getClaim("email").asString(),
-                UUID.randomUUID().toString(), loginGoogleDTO.deviceType(), loginGoogleDTO.deviceIdentifier());
+        return new RegisterUserDTO(jwtDecoder.getClaim("name").asString(), jwtDecoder.getClaim("email").asString(), UUID.randomUUID().toString());
     }
     private Role getRole(){
         return roleRepository.findByName(RoleName.USER)

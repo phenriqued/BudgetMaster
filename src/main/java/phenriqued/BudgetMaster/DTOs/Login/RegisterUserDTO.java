@@ -13,12 +13,6 @@ public record RegisterUserDTO(
         String email,
         @NotNull
         @NotBlank
-        String password,
-        @NotNull
-        @NotBlank
-        String deviceType,
-        @NotNull
-        @NotBlank
-        String deviceIdentifier
+        String password
 ) {
 }

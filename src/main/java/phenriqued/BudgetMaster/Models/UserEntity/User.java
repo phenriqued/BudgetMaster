@@ -49,13 +49,17 @@ public class User {
         this.email = userDTO.email();
         this.password = password;
         this.role = role;
-        this.isActive = true;
+        this.isActive = false;
         this.createdAt = LocalDate.now();
     }
 
     public String getRefreshToken(DeviceType deviceType){
         return refreshTokens.stream().filter(refresh -> refresh.getDeviceType().equals(deviceType)).findFirst()
                 .orElseThrow(() -> new BudgetMasterSecurityException("Token for device does not exist")).getToken();
+    }
+
+    public void setIsActive(){
+        this.isActive =! isActive;
     }
 
 }
