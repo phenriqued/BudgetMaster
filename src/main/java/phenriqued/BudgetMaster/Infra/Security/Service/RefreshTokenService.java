@@ -2,6 +2,7 @@ package phenriqued.BudgetMaster.Infra.Security.Service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import phenriqued.BudgetMaster.Infra.Security.Token.DeviceType;
 import phenriqued.BudgetMaster.Infra.Security.Token.RefreshToken;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
@@ -17,6 +18,7 @@ public class RefreshTokenService {
 
     private final RefreshTokenRepository repository;
 
+    @Transactional
     public String generatedRefreshToken(UserDetailsImpl userDetails, DeviceType deviceType, String deviceIdentifier){
         var user = userDetails.getUser();
         var token =  UUID.randomUUID().toString().replaceAll("-", "");

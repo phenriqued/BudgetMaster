@@ -1,8 +1,11 @@
 package phenriqued.BudgetMaster.Services.LoginService;
 
+
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import phenriqued.BudgetMaster.DTOs.Login.RegisterUserDTO;
 import phenriqued.BudgetMaster.DTOs.Token.TokenDTO;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
@@ -24,10 +27,11 @@ public class SignUpService {
     private final PasswordEncoder encoder;
     private final TokenService tokenService;
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public TokenDTO registerUser(RegisterUserDTO registerUserDTO) {
         String password = encoder.encode(registerUserDTO.password());
         Role role = roleRepository.findByName(RoleName.USER)
-                .orElseThrow(() -> new BudgetMasterSecurityException("[ERROR] error role user."));
+                .orElseThrow(() -> new BudgetMasterSecurityException("[INTERNAL ERROR] error role user."));
         var newUser = userRepository.save(new User(registerUserDTO, password, role));
         return tokenService.generatedTokens(new UserDetailsImpl(newUser), DeviceType.valueOf(registerUserDTO.deviceType().toUpperCase()),
                 registerUserDTO.deviceIdentifier());

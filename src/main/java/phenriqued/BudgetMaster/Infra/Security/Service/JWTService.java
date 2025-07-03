@@ -15,7 +15,7 @@ import java.time.ZoneOffset;
 @Service
 public class JWTService {
 
-    @Value("${secret.jwt.algorithm}")
+    @Value("${ALGORITHM_JWT}")
     private String secret;
 
     public String generatedTokenJWT(UserDetailsImpl user){
