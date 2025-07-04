@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import phenriqued.BudgetMaster.DTOs.Login.RegisterUserDTO;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
-import phenriqued.BudgetMaster.Infra.Security.Token.DeviceType;
+import phenriqued.BudgetMaster.Infra.Security.Token.TokenType;
 import phenriqued.BudgetMaster.Infra.Security.Token.RefreshToken;
 import phenriqued.BudgetMaster.Models.FamilyEntity.UserFamily;
 import phenriqued.BudgetMaster.Models.UserEntity.Role.Role;
@@ -16,7 +16,6 @@ import phenriqued.BudgetMaster.Models.UserEntity.Role.Role;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Table(name = "tb_user")
@@ -51,11 +50,6 @@ public class User {
         this.role = role;
         this.isActive = false;
         this.createdAt = LocalDate.now();
-    }
-
-    public String getRefreshToken(DeviceType deviceType){
-        return refreshTokens.stream().filter(refresh -> refresh.getDeviceType().equals(deviceType)).findFirst()
-                .orElseThrow(() -> new BudgetMasterSecurityException("Token for device does not exist")).getToken();
     }
 
     public void setIsActive(){

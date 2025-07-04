@@ -6,9 +6,9 @@ import jakarta.validation.constraints.NotNull;
 public record RequestTokenDTO(
         @NotBlank
         @NotNull
-        String deviceType,
+        String tokenType,
         @NotBlank
         @NotNull
-        String deviceIdentifier
+        String identifier
 ) {
 }

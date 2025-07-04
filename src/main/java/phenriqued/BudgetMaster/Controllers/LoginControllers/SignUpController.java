@@ -1,12 +1,16 @@
 package phenriqued.BudgetMaster.Controllers.LoginControllers;
 
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import phenriqued.BudgetMaster.DTOs.Login.RegisterUserDTO;
 import phenriqued.BudgetMaster.DTOs.Token.RequestTokenDTO;
 import phenriqued.BudgetMaster.DTOs.Token.TokenDTO;
+import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
+import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BusinessRuleException;
 import phenriqued.BudgetMaster.Services.LoginService.SignUpService;
 
 import java.net.URI;
@@ -30,7 +34,23 @@ public class SignUpController {
 
     @PutMapping("/activate-user")
     public ResponseEntity<TokenDTO> activationUser(@RequestParam("code") String code, @RequestBody @Valid RequestTokenDTO requestTokenDTO){
-        return ResponseEntity.ok().body(service.activateUser(code, requestTokenDTO));
+        try {
+            return ResponseEntity.ok().body(service.activateUser(code, requestTokenDTO));
+        } catch (BudgetMasterSecurityException | BusinessRuleException e) {
+            String uriSendNewCode = "http://localhost:8080/login/resend-code?code="+code;
+            HttpHeaders headers = new HttpHeaders();
+            headers.setLocation(URI.create(uriSendNewCode));
+            return new ResponseEntity<>(headers, HttpStatus.FOUND);
+        }
     }
+
+    @GetMapping("/resend-code")
+    public ResponseEntity<String> resendCodeActivationUser(@RequestParam("code") String code){
+        if(service.resendCodeActivateUser(code)){
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.badRequest().body("Token está valido!");
+    }
+
 
 }

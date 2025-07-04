@@ -13,7 +13,8 @@ import phenriqued.BudgetMaster.Infra.Email.EmailService;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BusinessRuleException;
 import phenriqued.BudgetMaster.Infra.Security.Service.TokenService;
-import phenriqued.BudgetMaster.Infra.Security.Token.DeviceType;
+import phenriqued.BudgetMaster.Infra.Security.Token.RefreshToken;
+import phenriqued.BudgetMaster.Infra.Security.Token.TokenType;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
 import phenriqued.BudgetMaster.Models.UserEntity.Role.Role;
 import phenriqued.BudgetMaster.Models.UserEntity.Role.RoleName;
@@ -28,7 +29,6 @@ public class SignUpService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final RefreshTokenRepository tokenRepository;
     private final PasswordEncoder encoder;
     private final TokenService tokenService;
     private final EmailService emailService;
@@ -44,12 +44,25 @@ public class SignUpService {
 
     @Transactional
     public TokenDTO activateUser(String code, RequestTokenDTO requestTokenDTO) {
-        var token = tokenRepository.findByToken(code).orElseThrow(() -> new BusinessRuleException("[ERROR] invalid code!"));
+        var token = tokenService.findByToken(code);
+        tokenService.verifyToken(token.getToken());
         var user = token.getUser();
         user.setIsActive();
         userRepository.save(user);
-        tokenRepository.delete(token);
-        return tokenService.generatedTokens(new UserDetailsImpl(user), DeviceType.valueOf(requestTokenDTO.deviceType().toUpperCase()),
-                                                requestTokenDTO.deviceIdentifier());
+        tokenService.deleteToken(token);
+        return tokenService.generatedTokens(new UserDetailsImpl(user), TokenType.valueOf(requestTokenDTO.tokenType().toUpperCase()),
+                                                requestTokenDTO.identifier());
     }
+
+    public Boolean resendCodeActivateUser(String code){
+        RefreshToken token = tokenService.findByToken(code);
+        try{
+            tokenService.verifyToken(token.getToken());
+            return false;
+        }catch (BudgetMasterSecurityException e){
+            emailService.sendVerificationEmail(token.getUser());
+            return true;
+        }
+    }
+
 }

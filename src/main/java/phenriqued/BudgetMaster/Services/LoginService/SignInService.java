@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import phenriqued.BudgetMaster.DTOs.Login.SignInDTO;
 import phenriqued.BudgetMaster.DTOs.Token.TokenDTO;
 import phenriqued.BudgetMaster.Infra.Security.Service.TokenService;
-import phenriqued.BudgetMaster.Infra.Security.Token.DeviceType;
+import phenriqued.BudgetMaster.Infra.Security.Token.TokenType;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
 
 @Service
@@ -22,8 +22,8 @@ public class SignInService{
         var authenticationToken = new UsernamePasswordAuthenticationToken(signInDTO.email(), signInDTO.password());
         var userAuthenticated = authenticationManager.authenticate(authenticationToken);
 
-        return tokenService.generatedTokens((UserDetailsImpl) userAuthenticated.getPrincipal(), DeviceType.valueOf(signInDTO.deviceType().toUpperCase()),
-                signInDTO.deviceIdentifier());
+        return tokenService.generatedTokens((UserDetailsImpl) userAuthenticated.getPrincipal(), TokenType.valueOf(signInDTO.tokenType().toUpperCase()),
+                signInDTO.identifier());
     }
 
 

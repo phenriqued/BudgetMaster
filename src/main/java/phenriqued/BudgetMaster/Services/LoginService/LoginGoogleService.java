@@ -12,7 +12,7 @@ import phenriqued.BudgetMaster.DTOs.Login.RegisterUserDTO;
 import phenriqued.BudgetMaster.DTOs.Token.TokenDTO;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
 import phenriqued.BudgetMaster.Infra.Security.Service.TokenService;
-import phenriqued.BudgetMaster.Infra.Security.Token.DeviceType;
+import phenriqued.BudgetMaster.Infra.Security.Token.TokenType;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
 import phenriqued.BudgetMaster.Models.UserEntity.Role.Role;
 import phenriqued.BudgetMaster.Models.UserEntity.Role.RoleName;
@@ -67,7 +67,7 @@ public class LoginGoogleService {
         }else {
             userDetails = new UserDetailsImpl(user);
         }
-        return tokenService.generatedTokens(userDetails, DeviceType.valueOf(loginGoogleDTO.deviceType()), loginGoogleDTO.deviceIdentifier());
+        return tokenService.generatedTokens(userDetails, TokenType.valueOf(loginGoogleDTO.tokenType()), loginGoogleDTO.identifier());
     }
 
     public String getToken(String code){

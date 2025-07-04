@@ -1,6 +1,6 @@
 package phenriqued.BudgetMaster.Infra.Security.Token;
 
-public enum DeviceType {
+public enum TokenType {
     WEB,
     MOBILE,
     DESKTOP,

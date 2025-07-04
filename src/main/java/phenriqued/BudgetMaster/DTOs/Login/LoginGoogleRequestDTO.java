@@ -9,8 +9,8 @@ public record LoginGoogleRequestDTO(
         String token,
         @NotNull
         @NotBlank
-        String deviceType,
+        String tokenType,
         @NotNull
         @NotBlank
-        String deviceIdentifier) {
+        String identifier) {
 }

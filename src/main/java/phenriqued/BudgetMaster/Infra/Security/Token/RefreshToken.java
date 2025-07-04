@@ -30,27 +30,32 @@ public class RefreshToken {
     private String token;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private DeviceType deviceType;
+    private TokenType tokenType;
     @Column(nullable = false, unique = true)
-    private String deviceIdentifier;
+    private String identifier;
     @Setter
     private LocalDateTime expirationToken;
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    public RefreshToken(User user, String token, DeviceType deviceType, String deviceIdentifier, LocalDateTime expirationToken) {
+    public RefreshToken(User user, TokenType tokenType, String identifier, LocalDateTime expirationToken) {
         this.user = user;
-        this.token = token;
-        this.deviceType = deviceType;
-        this.deviceIdentifier = deviceIdentifier;
+        this.token = generatedToken(tokenType);
+        this.tokenType = tokenType;
+        this.identifier = identifier;
         this.expirationToken = expirationToken;
     }
 
-    public void attToken(String token, LocalDateTime expirationToken){
-        if(Objects.isNull(token) || Objects.isNull(expirationToken))
-            throw new BudgetMasterSecurityException("Cannot create a null token");
-        this.token = token;
+    public void attToken(LocalDateTime expirationToken){
+        if(Objects.isNull(tokenType) || Objects.isNull(expirationToken))
+            throw new BudgetMasterSecurityException("Cannot create a token");
+        this.token = generatedToken(tokenType);
         this.expirationToken = expirationToken;
         this.createdAt = LocalDateTime.now();
+    }
+
+    private String generatedToken(TokenType tokenType){
+        return tokenType.equals(TokenType.USER_ACTIVATION) ? UUID.randomUUID().toString().replaceAll("-", "") :
+                UUID.randomUUID().toString();
     }
 
 }

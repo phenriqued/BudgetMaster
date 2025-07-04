@@ -13,9 +13,9 @@ public record SignInDTO(
         String password,
         @NotNull
         @NotBlank
-        String deviceType,
+        String tokenType,
         @NotNull
         @NotBlank
-        String deviceIdentifier
+        String identifier
 ) {
 }

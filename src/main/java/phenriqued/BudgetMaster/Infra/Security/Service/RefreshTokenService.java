@@ -3,7 +3,8 @@ package phenriqued.BudgetMaster.Infra.Security.Service;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import phenriqued.BudgetMaster.Infra.Security.Token.DeviceType;
+import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
+import phenriqued.BudgetMaster.Infra.Security.Token.TokenType;
 import phenriqued.BudgetMaster.Infra.Security.Token.RefreshToken;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
 import phenriqued.BudgetMaster.Models.UserEntity.User;
@@ -20,26 +21,39 @@ public class RefreshTokenService {
     private final RefreshTokenRepository repository;
 
     @Transactional
-    public String generatedRefreshToken(UserDetailsImpl userDetails, DeviceType deviceType, String deviceIdentifier){
+    public String generatedRefreshToken(UserDetailsImpl userDetails, TokenType tokenType, String deviceIdentifier){
         var user = userDetails.getUser();
-        var token =  UUID.randomUUID().toString().replaceAll("-", "");
         var expirationToken = LocalDateTime.now().plusHours(2);
-        var existsToken = repository.findByDeviceIdentifierAndUser(deviceIdentifier, user).orElse(null);
-        if(Objects.isNull(existsToken)){
-            repository.save(new RefreshToken(user, token,
-                    deviceType, deviceIdentifier, expirationToken));
+        var token = repository.findByIdentifierAndUser(deviceIdentifier, user).orElse(null);
+        if(Objects.isNull(token)){
+            token = repository.save(new RefreshToken(user, tokenType, deviceIdentifier, expirationToken));
         }else{
-            existsToken.attToken(token, expirationToken);
-            repository.save(existsToken);
+            token.attToken(expirationToken);
+            repository.save(token);
         }
-        return token;
+        return token.getToken();
     }
 
+    @Transactional
     public String generatedActivationToken(User user){
-        String token = UUID.randomUUID().toString().replaceAll("-", "");
-        String deviceIdentifier = "internal-activation-user-"+user.getId();
-        return repository.save( new RefreshToken(user, token, DeviceType.USER_ACTIVATION,
-                deviceIdentifier, LocalDateTime.now().plusMinutes(10))).getToken();
+        String identifier = "internal-activation-user-"+user.getId();
+        LocalDateTime expirationToken = LocalDateTime.now().plusMinutes(10);
+        var token = repository.findByIdentifierAndUser(identifier, user);
+        if(token.isPresent()){
+            token.get().attToken(expirationToken);
+            return repository.save(token.get()).getToken();
+        }
+        return repository.save(new RefreshToken(user, TokenType.USER_ACTIVATION,
+                identifier, expirationToken)).getToken();
+    }
+
+    public void tokenValidation(String token){
+        var tokenVerification = repository.findByToken(token)
+                .orElseThrow(() -> new BudgetMasterSecurityException("Unable to verify a non-existent token, please verify the token"));
+
+        if(LocalDateTime.now().isAfter(tokenVerification.getExpirationToken()))
+            throw new BudgetMasterSecurityException("Invalid token! The token expiration time has been exceeded.");
+
     }
 
 
