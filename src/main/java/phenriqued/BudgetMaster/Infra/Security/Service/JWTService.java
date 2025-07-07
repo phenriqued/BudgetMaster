@@ -3,6 +3,9 @@ package phenriqued.BudgetMaster.Infra.Security.Service;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.auth0.jwt.interfaces.JWTVerifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
@@ -28,6 +31,22 @@ public class JWTService {
                     .sign(algorithm);
         } catch (JWTCreationException exception){
             throw new BudgetMasterSecurityException("[ERROR] Error creating a JWT Token: " +exception.getMessage());
+        }
+    }
+
+    public String tokenJWTValidation(String tokenJwt){
+        DecodedJWT decodedJWT;
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(secret);
+            JWTVerifier verifier = JWT.require(algorithm)
+                    // specify any specific claim validations
+                    .withIssuer("Budget_Master")
+                    .build();
+
+            decodedJWT = verifier.verify(tokenJwt);
+            return decodedJWT.getSubject();
+        } catch (JWTVerificationException exception){
+            throw new BudgetMasterSecurityException(exception.getMessage());
         }
     }
 

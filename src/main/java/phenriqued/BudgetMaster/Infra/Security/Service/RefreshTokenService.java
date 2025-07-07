@@ -4,15 +4,14 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
-import phenriqued.BudgetMaster.Infra.Security.Token.TokenType;
 import phenriqued.BudgetMaster.Infra.Security.Token.RefreshToken;
+import phenriqued.BudgetMaster.Infra.Security.Token.TokenType;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
 import phenriqued.BudgetMaster.Models.UserEntity.User;
 import phenriqued.BudgetMaster.Repositories.SecurityData.RefreshTokenRepository;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
-import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -47,7 +46,7 @@ public class RefreshTokenService {
                 identifier, expirationToken)).getToken();
     }
 
-    public void tokenValidation(String token){
+    public void tokenValidation(String token) throws BudgetMasterSecurityException{
         var tokenVerification = repository.findByToken(token)
                 .orElseThrow(() -> new BudgetMasterSecurityException("Unable to verify a non-existent token, please verify the token"));
 

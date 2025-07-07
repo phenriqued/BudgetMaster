@@ -24,7 +24,16 @@ public class TokenService {
         return new TokenDTO(tokenJWT, refreshToken);
     }
 
-    public void verifyToken(String code){
+    public void tokenValidations(String tokenJWT, String refreshToken){
+        try{
+            verifyToken(refreshToken);
+            jwtService.tokenJWTValidation(tokenJWT);
+        }catch (BudgetMasterSecurityException e){
+            throw new BudgetMasterSecurityException("[ERROR] "+e.getMessage());
+        }
+    }
+
+    public void verifyToken(String code) throws BudgetMasterSecurityException{
         refreshTokenService.tokenValidation(code);
     }
 
