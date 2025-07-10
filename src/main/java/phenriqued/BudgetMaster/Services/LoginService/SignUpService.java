@@ -9,9 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import phenriqued.BudgetMaster.DTOs.Login.RegisterUserDTO;
 import phenriqued.BudgetMaster.DTOs.Token.RequestTokenDTO;
 import phenriqued.BudgetMaster.DTOs.Token.TokenDTO;
-import phenriqued.BudgetMaster.Infra.Email.EmailService;
+import phenriqued.BudgetMaster.Infra.Email.SecurityEmailService;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
-import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BusinessRuleException;
 import phenriqued.BudgetMaster.Infra.Security.Service.TokenService;
 import phenriqued.BudgetMaster.Infra.Security.Token.RefreshToken;
 import phenriqued.BudgetMaster.Infra.Security.Token.TokenType;
@@ -20,7 +19,6 @@ import phenriqued.BudgetMaster.Models.UserEntity.Role.Role;
 import phenriqued.BudgetMaster.Models.UserEntity.Role.RoleName;
 import phenriqued.BudgetMaster.Models.UserEntity.User;
 import phenriqued.BudgetMaster.Repositories.RoleRepository.RoleRepository;
-import phenriqued.BudgetMaster.Repositories.SecurityData.RefreshTokenRepository;
 import phenriqued.BudgetMaster.Repositories.UserRepository.UserRepository;
 
 @Service
@@ -31,7 +29,7 @@ public class SignUpService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder encoder;
     private final TokenService tokenService;
-    private final EmailService emailService;
+    private final SecurityEmailService emailService;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void registerUser(RegisterUserDTO registerUserDTO) {
