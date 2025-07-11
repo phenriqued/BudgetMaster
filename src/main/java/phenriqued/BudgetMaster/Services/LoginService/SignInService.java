@@ -22,7 +22,7 @@ public class SignInService{
         var authenticationToken = new UsernamePasswordAuthenticationToken(signInDTO.email(), signInDTO.password());
         var userAuthenticated = authenticationManager.authenticate(authenticationToken);
 
-        return tokenService.generatedTokens((UserDetailsImpl) userAuthenticated.getPrincipal(), TokenType.valueOf(signInDTO.tokenType().toUpperCase()),
+        return tokenService.generatedRefreshTokenAndTokenJWT((UserDetailsImpl) userAuthenticated.getPrincipal(), TokenType.valueOf(signInDTO.tokenType().toUpperCase()),
                 signInDTO.identifier());
     }
 

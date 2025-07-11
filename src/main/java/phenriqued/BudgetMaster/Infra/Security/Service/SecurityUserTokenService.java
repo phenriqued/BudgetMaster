@@ -4,20 +4,20 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
-import phenriqued.BudgetMaster.Infra.Security.Token.RefreshToken;
+import phenriqued.BudgetMaster.Infra.Security.Token.SecurityUserToken;
 import phenriqued.BudgetMaster.Infra.Security.Token.TokenType;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
 import phenriqued.BudgetMaster.Models.UserEntity.User;
-import phenriqued.BudgetMaster.Repositories.SecurityData.RefreshTokenRepository;
+import phenriqued.BudgetMaster.Repositories.SecurityData.SecurityUserTokenRepository;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Service
 @AllArgsConstructor
-public class RefreshTokenService {
+public class SecurityUserTokenService {
 
-    private final RefreshTokenRepository repository;
+    private final SecurityUserTokenRepository repository;
 
     @Transactional
     public String generatedRefreshToken(UserDetailsImpl userDetails, TokenType tokenType, String deviceIdentifier){
@@ -25,7 +25,7 @@ public class RefreshTokenService {
         var expirationToken = LocalDateTime.now().plusHours(2);
         var token = repository.findByIdentifierAndUser(deviceIdentifier, user).orElse(null);
         if(Objects.isNull(token)){
-            token = repository.save(new RefreshToken(user, tokenType, deviceIdentifier, expirationToken));
+            token = repository.save(new SecurityUserToken(user, tokenType, deviceIdentifier, expirationToken));
         }else{
             token.attToken(expirationToken);
             repository.save(token);
@@ -42,7 +42,7 @@ public class RefreshTokenService {
             token.get().attToken(expirationToken);
             return repository.save(token.get()).getToken();
         }
-        return repository.save(new RefreshToken(user, TokenType.USER_ACTIVATION,
+        return repository.save(new SecurityUserToken(user, TokenType.USER_ACTIVATION,
                 identifier, expirationToken)).getToken();
     }
 

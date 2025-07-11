@@ -12,7 +12,7 @@ import phenriqued.BudgetMaster.DTOs.Token.TokenDTO;
 import phenriqued.BudgetMaster.Infra.Email.SecurityEmailService;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
 import phenriqued.BudgetMaster.Infra.Security.Service.TokenService;
-import phenriqued.BudgetMaster.Infra.Security.Token.RefreshToken;
+import phenriqued.BudgetMaster.Infra.Security.Token.SecurityUserToken;
 import phenriqued.BudgetMaster.Infra.Security.Token.TokenType;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
 import phenriqued.BudgetMaster.Models.UserEntity.Role.Role;
@@ -48,12 +48,12 @@ public class SignUpService {
         user.setIsActive();
         userRepository.save(user);
         tokenService.deleteToken(token);
-        return tokenService.generatedTokens(new UserDetailsImpl(user), TokenType.valueOf(requestTokenDTO.tokenType().toUpperCase()),
+        return tokenService.generatedRefreshTokenAndTokenJWT(new UserDetailsImpl(user), TokenType.valueOf(requestTokenDTO.tokenType().toUpperCase()),
                                                 requestTokenDTO.identifier());
     }
 
     public Boolean resendCodeActivateUser(String code){
-        RefreshToken token = tokenService.findByToken(code);
+        SecurityUserToken token = tokenService.findByToken(code);
         try{
             tokenService.verifyToken(token.getToken());
             return false;

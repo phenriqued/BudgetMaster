@@ -8,16 +8,18 @@ import lombok.Setter;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
 import phenriqued.BudgetMaster.Models.UserEntity.User;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.Objects;
 import java.util.UUID;
 
 @Entity
-@Table(name = "tb_refresh_token")
+@Table(name = "tb_security_user_token")
 
 @NoArgsConstructor
 @Getter
-public class RefreshToken {
+public class SecurityUserToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -37,7 +39,7 @@ public class RefreshToken {
     private LocalDateTime expirationToken;
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    public RefreshToken(User user, TokenType tokenType, String identifier, LocalDateTime expirationToken) {
+    public SecurityUserToken(User user, TokenType tokenType, String identifier, LocalDateTime expirationToken) {
         this.user = user;
         this.token = generatedToken(tokenType);
         this.tokenType = tokenType;
@@ -54,8 +56,15 @@ public class RefreshToken {
     }
 
     private String generatedToken(TokenType tokenType){
-        return tokenType.equals(TokenType.USER_ACTIVATION) ? UUID.randomUUID().toString().replaceAll("-", "") :
+        return tokenType.equals(TokenType.USER_ACTIVATION) ? generatedSecureRandomToken(32) :
                 UUID.randomUUID().toString();
+    }
+
+    private String generatedSecureRandomToken(int byteLength) {
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] token = new byte[byteLength];
+        secureRandom.nextBytes(token);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(token);
     }
 
 }

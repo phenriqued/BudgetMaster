@@ -5,28 +5,28 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import phenriqued.BudgetMaster.DTOs.Token.TokenDTO;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
-import phenriqued.BudgetMaster.Infra.Security.Token.RefreshToken;
+import phenriqued.BudgetMaster.Infra.Security.Token.SecurityUserToken;
 import phenriqued.BudgetMaster.Infra.Security.Token.TokenType;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
-import phenriqued.BudgetMaster.Repositories.SecurityData.RefreshTokenRepository;
+import phenriqued.BudgetMaster.Repositories.SecurityData.SecurityUserTokenRepository;
 
 @Service
 @AllArgsConstructor
 public class TokenService {
 
     private final JWTService jwtService;
-    private final RefreshTokenService refreshTokenService;
-    private final RefreshTokenRepository tokenRepository;
+    private final SecurityUserTokenService securityUserTokenService;
+    private final SecurityUserTokenRepository tokenRepository;
 
-    public TokenDTO generatedTokens(UserDetailsImpl user, TokenType tokenType, String deviceIdentifier) {
+    public TokenDTO generatedRefreshTokenAndTokenJWT(UserDetailsImpl user, TokenType tokenType, String deviceIdentifier) {
         var tokenJWT = jwtService.generatedTokenJWT(user);
-        var refreshToken = refreshTokenService.generatedRefreshToken(user, tokenType, deviceIdentifier);
+        var refreshToken = securityUserTokenService.generatedRefreshToken(user, tokenType, deviceIdentifier);
         return new TokenDTO(tokenJWT, refreshToken);
     }
 
-    public void tokenValidations(String tokenJWT, String refreshToken){
+    public void tokenValidations(String tokenJWT, String securityUserToken){
         try{
-            verifyToken(refreshToken);
+            verifyToken(securityUserToken);
             jwtService.tokenJWTValidation(tokenJWT);
         }catch (BudgetMasterSecurityException e){
             throw new BudgetMasterSecurityException("[ERROR] "+e.getMessage());
@@ -34,15 +34,15 @@ public class TokenService {
     }
 
     public void verifyToken(String code) throws BudgetMasterSecurityException{
-        refreshTokenService.tokenValidation(code);
+        securityUserTokenService.tokenValidation(code);
     }
 
-    public RefreshToken findByToken(String token){
+    public SecurityUserToken findByToken(String token){
         return tokenRepository.findByToken(token)
                 .orElseThrow(() -> new BudgetMasterSecurityException("[ERROR] invalid code or could not find token!"));
     }
 
-    public void deleteToken(RefreshToken token){
+    public void deleteToken(SecurityUserToken token){
         if(!tokenRepository.existsById(token.getId())) throw new BudgetMasterSecurityException("invalid token!");
         tokenRepository.delete(token);
     }

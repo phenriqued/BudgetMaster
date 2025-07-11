@@ -7,9 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import phenriqued.BudgetMaster.DTOs.Login.RegisterUserDTO;
-import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
-import phenriqued.BudgetMaster.Infra.Security.Token.TokenType;
-import phenriqued.BudgetMaster.Infra.Security.Token.RefreshToken;
+import phenriqued.BudgetMaster.Infra.Security.Token.SecurityUserToken;
 import phenriqued.BudgetMaster.Models.FamilyEntity.UserFamily;
 import phenriqued.BudgetMaster.Models.UserEntity.Role.Role;
 
@@ -41,7 +39,7 @@ public class User {
     private LocalDate createdAt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RefreshToken> refreshTokens = new ArrayList<>();
+    private List<SecurityUserToken> securityUserTokens = new ArrayList<>();
 
     public User(RegisterUserDTO userDTO, String password, Role role){
         this.name = userDTO.name();

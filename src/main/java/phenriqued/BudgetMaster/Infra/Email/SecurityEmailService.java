@@ -1,18 +1,18 @@
 package phenriqued.BudgetMaster.Infra.Email;
 
 import org.springframework.stereotype.Service;
-import phenriqued.BudgetMaster.Infra.Security.Service.RefreshTokenService;
+import phenriqued.BudgetMaster.Infra.Security.Service.SecurityUserTokenService;
 import phenriqued.BudgetMaster.Models.UserEntity.User;
 
 @Service
 public class SecurityEmailService {
 
     private final EmailService service;
-    private final RefreshTokenService tokenService;
+    private final SecurityUserTokenService tokenService;
 
     private static final String URL_SITE = "http://localhost:8080";
 
-    public SecurityEmailService(EmailService service, RefreshTokenService tokenService) {
+    public SecurityEmailService(EmailService service, SecurityUserTokenService tokenService) {
         this.service = service;
         this.tokenService = tokenService;
     }

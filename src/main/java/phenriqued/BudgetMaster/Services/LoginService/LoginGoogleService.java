@@ -67,7 +67,7 @@ public class LoginGoogleService {
         }else {
             userDetails = new UserDetailsImpl(user);
         }
-        return tokenService.generatedTokens(userDetails, TokenType.valueOf(loginGoogleDTO.tokenType()), loginGoogleDTO.identifier());
+        return tokenService.generatedRefreshTokenAndTokenJWT(userDetails, TokenType.valueOf(loginGoogleDTO.tokenType()), loginGoogleDTO.identifier());
     }
 
     public String getToken(String code){
