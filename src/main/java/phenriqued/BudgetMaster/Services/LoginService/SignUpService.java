@@ -43,7 +43,7 @@ public class SignUpService {
     @Transactional
     public TokenDTO activateUser(String code, RequestTokenDTO requestTokenDTO) {
         var token = tokenService.findByToken(code);
-        tokenService.verifyToken(token.getToken());
+        tokenService.verifySecurityUserToken(token.getToken());
         var user = token.getUser();
         user.setIsActive();
         userRepository.save(user);
@@ -55,7 +55,7 @@ public class SignUpService {
     public Boolean resendCodeActivateUser(String code){
         SecurityUserToken token = tokenService.findByToken(code);
         try{
-            tokenService.verifyToken(token.getToken());
+            tokenService.verifySecurityUserToken(token.getToken());
             return false;
         }catch (BudgetMasterSecurityException e){
             emailService.sendVerificationEmail(token.getUser());

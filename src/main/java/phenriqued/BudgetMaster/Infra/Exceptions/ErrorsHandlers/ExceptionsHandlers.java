@@ -3,6 +3,7 @@ package phenriqued.BudgetMaster.Infra.Exceptions.ErrorsHandlers;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -10,6 +11,8 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import phenriqued.BudgetMaster.DTOs.ExceptionHandler.DataErrorValidationDTO;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
 
+import javax.naming.AuthenticationException;
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestControllerAdvice
@@ -38,8 +41,21 @@ public class ExceptionsHandlers {
         return ResponseEntity.status(HttpStatus.CONFLICT).body("[ERROR] Unique index or primary key violation: The resource you tried to create already exists.");
     }
 
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<String> handlerAuthenticationException(AuthenticationException e){
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+    }
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<String> handlerAccessDeniedException(AccessDeniedException e){
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+    }
     @ExceptionHandler(BudgetMasterSecurityException.class)
     public ResponseEntity<String> handlerBudgetMasterSecurityException(BudgetMasterSecurityException e){
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+    }
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<String> handlerDisabledException(DisabledException e){
         return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
     }
 
