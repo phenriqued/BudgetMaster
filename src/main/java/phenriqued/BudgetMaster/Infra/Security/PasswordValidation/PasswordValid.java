@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PasswordValid {
 
-    String message() default "Password must have at least one uppercase letter, one number, one special character, and be between 6 and 20 characters long.";
+    String message() default "Password must have at least one uppercase letter, one number, one special character, and be at least 6 characters long.";
     Class<?>[] groups() default {};
     Class<? extends Payload> [] payload() default {};
 
