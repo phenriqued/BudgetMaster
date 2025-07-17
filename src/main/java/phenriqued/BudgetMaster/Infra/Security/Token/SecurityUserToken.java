@@ -56,7 +56,7 @@ public class SecurityUserToken {
     }
 
     private String generatedToken(TokenType tokenType){
-        return tokenType.equals(TokenType.USER_ACTIVATION) ? generatedSecureRandomToken(32) :
+        return tokenType.equals(TokenType.USER_ACTIVATION) || tokenType.equals(TokenType.OPEN_ID) ? generatedSecureRandomToken(32) :
                 UUID.randomUUID().toString();
     }
 

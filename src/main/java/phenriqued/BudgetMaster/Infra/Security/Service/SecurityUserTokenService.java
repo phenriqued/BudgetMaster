@@ -46,6 +46,18 @@ public class SecurityUserTokenService {
                 identifier, expirationToken)).getToken();
     }
 
+    @Transactional
+    public String generatedSecurityUserToken(User user, String identifier, Integer expirationTime, TokenType tokenType){
+        LocalDateTime expirationToken = LocalDateTime.now().plusMinutes(expirationTime);
+        var token = repository.findByIdentifierAndUser(identifier, user);
+        if(token.isPresent()){
+            token.get().attToken(expirationToken);
+            return repository.save(token.get()).getToken();
+        }
+        return repository.save(new SecurityUserToken(user, tokenType, identifier, expirationToken)).getToken();
+    }
+
+
     public void tokenValidation(String token) throws BudgetMasterSecurityException{
         var tokenVerification = repository.findByToken(token)
                 .orElseThrow(() -> new BudgetMasterSecurityException("Unable to verify a non-existent token, please verify the token"));

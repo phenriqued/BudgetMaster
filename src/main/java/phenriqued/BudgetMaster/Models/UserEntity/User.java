@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import phenriqued.BudgetMaster.DTOs.Login.RegisterUserDTO;
+import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BusinessRuleException;
 import phenriqued.BudgetMaster.Infra.Security.Token.SecurityUserToken;
 import phenriqued.BudgetMaster.Models.FamilyEntity.UserFamily;
 import phenriqued.BudgetMaster.Models.UserEntity.Role.Role;
@@ -14,6 +15,7 @@ import phenriqued.BudgetMaster.Models.UserEntity.Role.Role;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "tb_user")
@@ -32,7 +34,6 @@ public class User {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
-    @Setter
     private Boolean isActive;
     @OneToMany(mappedBy = "user")
     private List<UserFamily> family = new ArrayList<>();
@@ -54,4 +55,8 @@ public class User {
         this.isActive =! isActive;
     }
 
+    public void setPassword(String password) {
+        if(Objects.isNull(password) || password.trim().isEmpty()) throw new BusinessRuleException("Password cannot be null or empty");
+        this.password = password;
+    }
 }

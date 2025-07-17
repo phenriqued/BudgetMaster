@@ -12,4 +12,6 @@ public interface SecurityUserTokenRepository extends JpaRepository<SecurityUserT
     Optional<SecurityUserToken> findByIdentifierAndUser(String deviceIdentifier, User user);
 
     Optional<SecurityUserToken> findByToken(String token);
+
+    void deleteAllByUser(User user);
 }

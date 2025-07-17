@@ -4,5 +4,6 @@ public enum TokenType {
     WEB,
     MOBILE,
     DESKTOP,
-    USER_ACTIVATION
+    USER_ACTIVATION,
+    OPEN_ID
 }

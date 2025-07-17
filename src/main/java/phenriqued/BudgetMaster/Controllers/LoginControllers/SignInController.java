@@ -8,7 +8,7 @@ import phenriqued.BudgetMaster.DTOs.Token.TokenDTO;
 import phenriqued.BudgetMaster.Services.LoginService.SignInService;
 
 @RestController
-@RequestMapping("login")
+@RequestMapping("login/signin")
 public class SignInController {
 
     private final SignInService service;
@@ -17,7 +17,12 @@ public class SignInController {
         this.service = service;
     }
 
-    @PostMapping("/signin")
+    @GetMapping
+    public ResponseEntity<Void> getSignIn(){
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping
     public ResponseEntity<TokenDTO> signIn(@RequestBody @Valid SignInDTO signInData){
         return ResponseEntity.ok(service.logIntoAccount(signInData));
     }

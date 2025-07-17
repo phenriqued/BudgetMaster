@@ -37,7 +37,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(
                         authRequest -> {
                             authRequest.requestMatchers("/h2-console/**").permitAll();
-                            authRequest.requestMatchers("/login/**").permitAll();
+                            authRequest.requestMatchers("/login/**", "account/manager/change-password-to-activate").permitAll();
                             authRequest.anyRequest().authenticated();
                         }
                 )

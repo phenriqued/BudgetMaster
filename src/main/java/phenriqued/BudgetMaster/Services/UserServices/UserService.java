@@ -1,17 +1,75 @@
 package phenriqued.BudgetMaster.Services.UserServices;
 
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import phenriqued.BudgetMaster.DTOs.User.PasswordDTOs.RequestConfirmationPasswordUser;
+import phenriqued.BudgetMaster.DTOs.User.PasswordDTOs.RequestOnlyNewPasswordChangeDTO;
+import phenriqued.BudgetMaster.DTOs.User.PasswordDTOs.RequestPasswordChangeUserDTO;
+import phenriqued.BudgetMaster.Infra.Email.UserEmailService;
+import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
+import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BusinessRuleException;
+import phenriqued.BudgetMaster.Infra.Security.Service.TokenService;
+import phenriqued.BudgetMaster.Models.UserEntity.User;
 import phenriqued.BudgetMaster.Repositories.UserRepository.UserRepository;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserEmailService userEmailService;
+    private final PasswordEncoder passwordEncoder;
+    private final TokenService tokenService;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, UserEmailService userEmailService, PasswordEncoder passwordEncoder, TokenService tokenService) {
         this.userRepository = userRepository;
+        this.userEmailService = userEmailService;
+        this.passwordEncoder = passwordEncoder;
+        this.tokenService = tokenService;
     }
 
+    public void disableUser(RequestConfirmationPasswordUser confirmationPassword, String email) {
+        User user = findUserByEmail(email);
+        matchesCurrentPassword(confirmationPassword.password(), user);
+        user.setIsActive();
+        userEmailService.sendDisableUserEmail(user);
+        userRepository.save(user);
+    }
 
+    public void changePassword(RequestPasswordChangeUserDTO passwordChangeUserDTO, String userAuthenticated) {
+        User user = findUserByEmail(userAuthenticated);
+        matchesCurrentPassword(passwordChangeUserDTO.password(), user);
+
+        newPasswordCheck(passwordChangeUserDTO.newPassword(), user.getPassword());
+        user.setPassword(passwordEncoder.encode(passwordChangeUserDTO.newPassword()));
+        userRepository.save(user);
+        userEmailService.sendChangedPassword(user);
+    }
+
+    public String changePasswordToActivateAccount(String code, RequestOnlyNewPasswordChangeDTO newPasswordChangeDTO){
+        var token = tokenService.findByToken(code);
+        User user = token.getUser();
+        user.setIsActive();
+        newPasswordCheck(newPasswordChangeDTO.newPassword(), user.getPassword());
+        user.setPassword(passwordEncoder.encode(newPasswordChangeDTO.newPassword()));
+        tokenService.deleteAllTokensByUser(user);
+        userRepository.save(user);
+        userEmailService.sendChangedPassword(user);
+        return "http://localhost:8080/login/signin";
+    }
+
+    private User findUserByEmail(String email){
+        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User cannot be found"));
+    }
+    private void matchesCurrentPassword(String confirmationPasswordUser, User user){
+        if(!passwordEncoder.matches(confirmationPasswordUser, user.getPassword())){
+            throw new BudgetMasterSecurityException("Invalid Password!");
+        }
+    }
+    private void newPasswordCheck(String newPassword, String password){
+        if(passwordEncoder.matches(newPassword, password)){
+            throw new BusinessRuleException("New password cannot match current password!");
+        }
+    }
 
 }
