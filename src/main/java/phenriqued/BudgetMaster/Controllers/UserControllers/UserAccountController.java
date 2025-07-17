@@ -32,14 +32,14 @@ public class UserAccountController {
     }
 
     @PutMapping("/edit-password")
-    public ResponseEntity<Void> editPassword(@RequestParam(value = "code", required = false) String code, @RequestBody @Valid RequestPasswordChangeUserDTO requestPasswordChangeUserDTO,
+    public ResponseEntity<Void> editPassword(@RequestBody @Valid RequestPasswordChangeUserDTO requestPasswordChangeUserDTO,
                                              Authentication authentication){
         userService.changePassword(requestPasswordChangeUserDTO, authentication.getName());
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/change-password-to-activate")
-    public ResponseEntity<Void> changePasswordToActivatedAccount(@RequestParam(value = "code", required = false) String code,
+    public ResponseEntity<Void> changePasswordToActivatedAccount(@RequestParam(value = "code") String code,
                                                                  @RequestBody @Valid RequestOnlyNewPasswordChangeDTO newPasswordChangeDTO){
         HttpHeaders httpHeaders = new HttpHeaders();
         String url = userService.changePasswordToActivateAccount(code, newPasswordChangeDTO);
