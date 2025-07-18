@@ -28,14 +28,6 @@ public class UserService {
         this.tokenService = tokenService;
     }
 
-    public void disableUser(RequestConfirmationPasswordUser confirmationPassword, String email) {
-        User user = findUserByEmail(email);
-        matchesCurrentPassword(confirmationPassword.password(), user);
-        user.setIsActive();
-        userEmailService.sendDisableUserEmail(user);
-        userRepository.save(user);
-    }
-
     public void changePassword(RequestPasswordChangeUserDTO passwordChangeUserDTO, String userAuthenticated) {
         User user = findUserByEmail(userAuthenticated);
         matchesCurrentPassword(passwordChangeUserDTO.password(), user);
@@ -50,6 +42,7 @@ public class UserService {
         var token = tokenService.findByToken(code);
         User user = token.getUser();
         user.setIsActive();
+        user.setDeleteAt();
         newPasswordCheck(newPasswordChangeDTO.newPassword(), user.getPassword());
         user.setPassword(passwordEncoder.encode(newPasswordChangeDTO.newPassword()));
         tokenService.deleteAllTokensByUser(user);
@@ -57,6 +50,26 @@ public class UserService {
         userEmailService.sendChangedPassword(user);
         return "http://localhost:8080/login/signin";
     }
+
+    public void disableUser(RequestConfirmationPasswordUser confirmationPassword, String email) {
+        User user = findUserByEmail(email);
+        matchesCurrentPassword(confirmationPassword.password(), user);
+        user.setIsActive();
+        user.setDeleteAt();
+        userEmailService.sendDisableUserEmail(user);
+        tokenService.deleteAllTokensByUserExceptOpenID(user);
+        userRepository.save(user);
+    }
+
+    public void activateAccount(String email){
+        var userActivate = findUserByEmail(email);
+        userActivate.setIsActive();
+        userActivate.setDeleteAt();
+        userEmailService.sendActivateAccount(userActivate);
+        tokenService.deleteAllTokensByUser(userActivate);
+        userRepository.save(userActivate);
+    }
+
 
     private User findUserByEmail(String email){
         return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User cannot be found"));

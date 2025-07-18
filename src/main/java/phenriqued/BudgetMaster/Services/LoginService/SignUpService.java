@@ -10,6 +10,7 @@ import phenriqued.BudgetMaster.DTOs.Login.RegisterUserDTO;
 import phenriqued.BudgetMaster.DTOs.Token.RequestTokenDTO;
 import phenriqued.BudgetMaster.DTOs.Token.TokenDTO;
 import phenriqued.BudgetMaster.Infra.Email.SecurityEmailService;
+import phenriqued.BudgetMaster.Infra.Email.UserEmailService;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
 import phenriqued.BudgetMaster.Infra.Security.Service.TokenService;
 import phenriqued.BudgetMaster.Infra.Security.Token.SecurityUserToken;
@@ -30,6 +31,7 @@ public class SignUpService {
     private final PasswordEncoder encoder;
     private final TokenService tokenService;
     private final SecurityEmailService emailService;
+    private final UserEmailService userEmailService;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void registerUser(RegisterUserDTO registerUserDTO) {
@@ -48,6 +50,7 @@ public class SignUpService {
         user.setIsActive();
         userRepository.save(user);
         tokenService.deleteToken(token);
+        userEmailService.sendActivateAccount(user);
         return tokenService.generatedRefreshTokenAndTokenJWT(new UserDetailsImpl(user), TokenType.valueOf(requestTokenDTO.tokenType().toUpperCase()),
                                                 requestTokenDTO.identifier());
     }

@@ -13,6 +13,7 @@ import phenriqued.BudgetMaster.Models.FamilyEntity.UserFamily;
 import phenriqued.BudgetMaster.Models.UserEntity.Role.Role;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -38,6 +39,7 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<UserFamily> family = new ArrayList<>();
     private LocalDate createdAt;
+    private LocalDateTime deleteAt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SecurityUserToken> securityUserTokens = new ArrayList<>();
@@ -49,6 +51,7 @@ public class User {
         this.role = role;
         this.isActive = false;
         this.createdAt = LocalDate.now();
+        this.deleteAt = null;
     }
 
     public void setIsActive(){
@@ -59,4 +62,13 @@ public class User {
         if(Objects.isNull(password) || password.trim().isEmpty()) throw new BusinessRuleException("Password cannot be null or empty");
         this.password = password;
     }
+
+    public void setDeleteAt(){
+        if (isActive){
+            this.deleteAt = null;
+        }else{
+            this.deleteAt = LocalDateTime.now();
+        }
+    }
+
 }

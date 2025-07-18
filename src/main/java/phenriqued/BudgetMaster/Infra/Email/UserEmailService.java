@@ -18,6 +18,15 @@ public class UserEmailService {
         this.tokenService = tokenService;
     }
 
+    public void sendActivateAccount(User user) {
+        String subject = "Ativação da sua conta Budget Master.";
+        String content = "Agradecemos por visita Budget Master! Sua conta foi ativada com sucesso. <br>"
+                +"Mantenha seu endereço de e-mail sempre atualizado na sua conta da Budget Master, pois o e-mail associado à sua conta é o único para o qual enviamos confirmações e informações."
+                +"<br>Agradecemos novamente por utilizar Budget Master.";
+
+        service.sendMail(user.getEmail(), subject, content);
+    }
+
     public void sendDisableUserEmail(User user){
         String code = tokenService.generatedSecurityUserToken(user, "open-id-"+user.getId()+"security-management", 4320, TokenType.OPEN_ID);
         String subject = "Desativação da sua conta.";
@@ -25,10 +34,11 @@ public class UserEmailService {
                 "Olá [[name]], <br>"
                         +"Sentimos muito que você decidiu desativar sua conta.<br>"
                         +"Caso não foi você que solicitou a desativação da conta, acesse o link abaixo: "
-                        + "<h3><a href=\"[[URL]]\" target=\"_self\">Budget Master - [[name]]</a></h3>"
-                        +"<strong>O link é válido até 72 horas, após a expiração a conta é excluida!</strong>"
-                        + "Obrigado,<br>"
-                        + "Budget Master."
+                        +"<h3><a href=\"[[URL]]\" target=\"_self\">Budget Master Alterar a senha - [[name]]</a></h3>"
+                        +"<strong>O link é válido até 72 horas, após a expiração a conta é excluida!</strong><br>"
+                        +"Se porventura queira ativar novamente sua conta,<strong> basta efetuar o login novamente dentro do prazo de 72 horas.</strong><br>"
+                        +"Obrigado,<br>"
+                        +"Budget Master."
                 , user.getName(), URL_SITE+"/account/manager/change-password-to-activate?code="+code
         );
         service.sendMail(user.getEmail(), subject, content);

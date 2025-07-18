@@ -13,6 +13,7 @@ import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
 import phenriqued.BudgetMaster.Models.UserEntity.User;
 import phenriqued.BudgetMaster.Repositories.SecurityData.SecurityUserTokenRepository;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
 
@@ -58,7 +59,20 @@ public class TokenService {
         }
         tokenRepository.deleteAllByUser(user);
     }
-
+    @Transactional
+    public void deleteAllTokensByUserExceptOpenID(User user){
+        if (Objects.isNull(user)){
+            Logger logger = (Logger) LoggerFactory.getLogger(TokenService.class);
+            logger.warning("Unable to delete tokens because user is null.");
+            return;
+        }
+        List<SecurityUserToken> tokens = tokenRepository.findAllByUser(user).orElseThrow();
+        for (SecurityUserToken userToken : tokens){
+            if (!userToken.getTokenType().equals(TokenType.OPEN_ID)){
+                tokenRepository.deleteAllByUserAndTokenType(user, userToken.getTokenType());
+            }
+        }
+    }
 
 
 }

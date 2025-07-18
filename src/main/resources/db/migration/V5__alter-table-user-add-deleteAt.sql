@@ -1,0 +1,2 @@
+ALTER TABLE tb_user
+    ADD delete_at TIMESTAMP DEFAULT NULL;
