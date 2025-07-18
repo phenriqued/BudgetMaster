@@ -67,7 +67,7 @@ public class User {
         if (isActive){
             this.deleteAt = null;
         }else{
-            this.deleteAt = LocalDateTime.now();
+            this.deleteAt = LocalDateTime.now().plusMinutes(4320);
         }
     }
 

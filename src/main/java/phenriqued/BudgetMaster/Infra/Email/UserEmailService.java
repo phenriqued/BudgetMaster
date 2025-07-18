@@ -44,6 +44,21 @@ public class UserEmailService {
         service.sendMail(user.getEmail(), subject, content);
     }
 
+    public void sendHardDeleteUser(User user) {
+        String subject = "Sua conta Budget Master expirou e foi removida.";
+        String content = generateEmailContent(
+                "Olá [[name]],<br>"
+                + "Este e-mail é para informar que sua conta no Budget Master atingiu a data de expiração e, de acordo com nossos termos de serviço, foi removida de nossos sistemas."
+                + "Agradecemos por ter feito parte da Budget Master. Se você tiver um minuto, adoraríamos ouvir sobre sua experiência com o Budget Master e como podemos melhorar. Sua opinião é muito importante para nós!"
+                +"<h3><a href=\"[[URL]]\" target=\"_self\">Pesquisa de Feedback</a></h3>"
+                +"<br>Se tiver alguma dúvida, por favor, entre em contato."
+                +"<br>Atenciosamente,<br>"
+                +"A Equipe Budget Master"
+                , user.getName(), URL_SITE+"/feedback");
+
+        service.sendMail(user.getEmail(), subject, content);
+    }
+
     public void sendChangedPassword(User user) {
         String subject = "Alteração na sua conta Budget Master.";
         String content = "Agradecemos por visita Budget Master! Conforme sua solicitação, sua senha foi alterada com sucesso. <br>"
@@ -56,6 +71,5 @@ public class UserEmailService {
     private String generateEmailContent(String content, String name, String url){
         return content.replace("[[name]]", name).replace("[[URL]]", url);
     }
-
 
 }

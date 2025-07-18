@@ -3,6 +3,7 @@ package phenriqued.BudgetMaster.Infra.Security.Service;
 
 import lombok.AllArgsConstructor;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import phenriqued.BudgetMaster.DTOs.Token.TokenDTO;
@@ -15,7 +16,6 @@ import phenriqued.BudgetMaster.Repositories.SecurityData.SecurityUserTokenReposi
 
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Logger;
 
 @Service
 @AllArgsConstructor
@@ -54,7 +54,7 @@ public class TokenService {
     public void deleteAllTokensByUser(User user){
         if (Objects.isNull(user)){
             Logger logger = (Logger) LoggerFactory.getLogger(TokenService.class);
-            logger.warning("Unable to delete tokens because user is null.");
+            logger.error("Unable to delete tokens because user is null.");
             return;
         }
         tokenRepository.deleteAllByUser(user);
@@ -63,7 +63,7 @@ public class TokenService {
     public void deleteAllTokensByUserExceptOpenID(User user){
         if (Objects.isNull(user)){
             Logger logger = (Logger) LoggerFactory.getLogger(TokenService.class);
-            logger.warning("Unable to delete tokens because user is null.");
+            logger.error("Unable to delete tokens because user is null.");
             return;
         }
         List<SecurityUserToken> tokens = user.getSecurityUserTokens();
