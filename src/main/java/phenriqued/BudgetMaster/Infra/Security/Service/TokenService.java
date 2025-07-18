@@ -66,7 +66,7 @@ public class TokenService {
             logger.warning("Unable to delete tokens because user is null.");
             return;
         }
-        List<SecurityUserToken> tokens = tokenRepository.findAllByUser(user).orElseThrow();
+        List<SecurityUserToken> tokens = user.getSecurityUserTokens();
         for (SecurityUserToken userToken : tokens){
             if (!userToken.getTokenType().equals(TokenType.OPEN_ID)){
                 tokenRepository.deleteAllByUserAndTokenType(user, userToken.getTokenType());
