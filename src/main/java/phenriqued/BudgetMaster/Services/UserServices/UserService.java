@@ -51,8 +51,7 @@ public class UserService {
         return "http://localhost:8080/login/signin";
     }
 
-    public void disableUser(RequestConfirmationPasswordUser confirmationPassword, String email) {
-        User user = findUserByEmail(email);
+    public void disableUser(RequestConfirmationPasswordUser confirmationPassword, User user) {
         matchesCurrentPassword(confirmationPassword.password(), user);
         user.setIsActive();
         user.setDeleteAt();
@@ -70,10 +69,10 @@ public class UserService {
         userRepository.save(userActivate);
     }
 
-
-    private User findUserByEmail(String email){
+    public User findUserByEmail(String email){
         return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User cannot be found"));
     }
+
     private void matchesCurrentPassword(String confirmationPasswordUser, User user){
         if(!passwordEncoder.matches(confirmationPasswordUser, user.getPassword())){
             throw new BudgetMasterSecurityException("Invalid Password!");

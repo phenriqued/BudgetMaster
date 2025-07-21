@@ -11,6 +11,7 @@ import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BusinessRuleException;
 import phenriqued.BudgetMaster.Infra.Security.Token.SecurityUserToken;
 import phenriqued.BudgetMaster.Models.FamilyEntity.UserFamily;
 import phenriqued.BudgetMaster.Models.Security.TwoFactorAuthentication.TwoFactorAuth;
+import phenriqued.BudgetMaster.Models.Security.TwoFactorAuthentication.Type2FA;
 import phenriqued.BudgetMaster.Models.UserEntity.Role.Role;
 
 import java.time.LocalDate;
@@ -74,8 +75,19 @@ public class User {
         }
     }
 
-    public Boolean  isTwoFactorAuthEnabled(){
-        return twoFactorAuths != null && !twoFactorAuths.isEmpty();
+    public Boolean isTwoFactorAuthEnabled(){
+        if(twoFactorAuths == null || twoFactorAuths.isEmpty()) return false;
+
+        return twoFactorAuths.stream().anyMatch(TwoFactorAuth::getIsActive);
+    }
+    public TwoFactorAuth priorityOrderTwoFactorAuth(){
+        if (!isTwoFactorAuthEnabled()) throw new BusinessRuleException("there is no active two-factor authentication");
+        var twoFactorAuthIsActive = twoFactorAuths.stream().filter(TwoFactorAuth::getIsActive).toList();
+
+        return twoFactorAuthIsActive.stream().filter(twoFactorAuth -> twoFactorAuth.getType2FA().equals(Type2FA.AUTHENTICATOR)).findFirst()
+                .orElse(twoFactorAuthIsActive.stream().filter(twoFactorAuth -> twoFactorAuth.getType2FA().equals(Type2FA.EMAIL)).findFirst()
+                        .orElseThrow(() -> new BusinessRuleException("[INTERNAL ERROR]: there is no active two-factor authentication")));
+
     }
 
 }
