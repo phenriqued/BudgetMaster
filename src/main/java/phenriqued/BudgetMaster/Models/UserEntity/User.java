@@ -10,6 +10,7 @@ import phenriqued.BudgetMaster.DTOs.Login.RegisterUserDTO;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BusinessRuleException;
 import phenriqued.BudgetMaster.Infra.Security.Token.SecurityUserToken;
 import phenriqued.BudgetMaster.Models.FamilyEntity.UserFamily;
+import phenriqued.BudgetMaster.Models.Security.TwoFactorAuthentication.TwoFactorAuth;
 import phenriqued.BudgetMaster.Models.UserEntity.Role.Role;
 
 import java.time.LocalDate;
@@ -35,14 +36,16 @@ public class User {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
-    private Boolean isActive;
     @OneToMany(mappedBy = "user")
     private List<UserFamily> family = new ArrayList<>();
+    private Boolean isActive;
     private LocalDate createdAt;
     private LocalDateTime deleteAt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SecurityUserToken> securityUserTokens = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TwoFactorAuth> twoFactorAuths = new ArrayList<>();
 
     public User(RegisterUserDTO userDTO, String password, Role role){
         this.name = userDTO.name();
@@ -69,6 +72,10 @@ public class User {
         }else{
             this.deleteAt = LocalDateTime.now().plusMinutes(4320);
         }
+    }
+
+    public Boolean  isTwoFactorAuthEnabled(){
+        return twoFactorAuths != null && !twoFactorAuths.isEmpty();
     }
 
 }
