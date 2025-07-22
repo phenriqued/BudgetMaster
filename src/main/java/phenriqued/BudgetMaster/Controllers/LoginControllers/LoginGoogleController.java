@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import phenriqued.BudgetMaster.DTOs.Login.LoginGoogleRequestDTO;
-import phenriqued.BudgetMaster.DTOs.Token.TokenDTO;
+import phenriqued.BudgetMaster.DTOs.Security.Token.TokenDTO;
 import phenriqued.BudgetMaster.Services.LoginService.LoginGoogleService;
 
 import java.net.URI;

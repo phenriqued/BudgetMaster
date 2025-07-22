@@ -1,4 +1,4 @@
-package phenriqued.BudgetMaster.Infra.Security.Token;
+package phenriqued.BudgetMaster.Models.Security.Token;
 
 public enum TokenType {
     WEB,

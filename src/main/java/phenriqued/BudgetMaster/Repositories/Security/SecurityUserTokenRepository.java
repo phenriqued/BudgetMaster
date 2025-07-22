@@ -1,14 +1,13 @@
-package phenriqued.BudgetMaster.Repositories.SecurityData;
+package phenriqued.BudgetMaster.Repositories.Security;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
-import phenriqued.BudgetMaster.Infra.Security.Token.SecurityUserToken;
-import phenriqued.BudgetMaster.Infra.Security.Token.TokenType;
+import phenriqued.BudgetMaster.Models.Security.Token.SecurityUserToken;
+import phenriqued.BudgetMaster.Models.Security.Token.TokenType;
 import phenriqued.BudgetMaster.Models.UserEntity.User;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 

@@ -8,9 +8,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import phenriqued.BudgetMaster.DTOs.Login.SignInDTO;
 import phenriqued.BudgetMaster.DTOs.Security.TwoFactorAuth.RequestValid2faDTO;
-import phenriqued.BudgetMaster.DTOs.Token.TokenDTO;
-import phenriqued.BudgetMaster.Infra.Security.Service.TokenService;
-import phenriqued.BudgetMaster.Infra.Security.Token.TokenType;
+import phenriqued.BudgetMaster.DTOs.Security.Token.TokenDTO;
+import phenriqued.BudgetMaster.Services.Security.TokensService.TokenService;
+import phenriqued.BudgetMaster.Models.Security.Token.TokenType;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
 import phenriqued.BudgetMaster.Services.Security.TwoFactorAuthServices.TwoFactorAuthService;
 import phenriqued.BudgetMaster.Services.UserServices.UserService;
@@ -48,7 +48,7 @@ public class SignInService{
     }
 
     public TokenDTO validation2fa(RequestValid2faDTO code) {
-        var twoFactorAuth = twoFactorAuthService.validationTwoFactorAuth(code);
+        var twoFactorAuth = twoFactorAuthService.validationAndActivationTwoFactorAuth(code);
 
         return tokenService.generatedRefreshTokenAndTokenJWT(new UserDetailsImpl(twoFactorAuth.getUser()),
                 TokenType.valueOf(code.tokenType().toUpperCase()), code.identifier());
@@ -57,6 +57,5 @@ public class SignInService{
     private Boolean hasTwoFactorAuth(String email){
         return userService.findUserByEmail(email).isTwoFactorAuthEnabled();
     }
-
 
 }

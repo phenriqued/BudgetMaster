@@ -1,4 +1,4 @@
-package phenriqued.BudgetMaster.DTOs.Token;
+package phenriqued.BudgetMaster.DTOs.Security.Token;
 
 public record TokenDTO(
         String token,

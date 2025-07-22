@@ -6,11 +6,12 @@ import phenriqued.BudgetMaster.DTOs.Login.SignInDTO;
 import phenriqued.BudgetMaster.DTOs.Security.TwoFactorAuth.Request2faActiveDTO;
 import phenriqued.BudgetMaster.DTOs.Security.TwoFactorAuth.RequestValid2faDTO;
 import phenriqued.BudgetMaster.Infra.Email.TwoFactorAuthEmailService;
+import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BusinessRuleException;
 import phenriqued.BudgetMaster.Models.Security.TwoFactorAuthentication.TwoFactorAuth;
 import phenriqued.BudgetMaster.Models.Security.TwoFactorAuthentication.Type2FA;
 import phenriqued.BudgetMaster.Models.UserEntity.User;
-import phenriqued.BudgetMaster.Repositories.Security.TwoFactorAuthentication.TwoFactorAuthRepository;
+import phenriqued.BudgetMaster.Repositories.Security.TwoFactorAuthRepository;
 import phenriqued.BudgetMaster.Services.UserServices.UserService;
 
 import java.security.SecureRandom;
@@ -37,10 +38,16 @@ public class TwoFactorAuthService {
     public void resendActivatedTwoFactorAuth(String code){
         var twoFactorAuth = repository.findBySecret(code)
                 .orElseThrow(()-> new BusinessRuleException("Invalid code, cannot find code!"));
-        twoFactorAuth.setSecret(generatedSecureSecret(twoFactorAuth.getType2FA()));
-        twoFactorAuth.setExpirationAt(generatedExpirationAt(twoFactorAuth.getType2FA()));
-        repository.save(twoFactorAuth);
-        factorAuthEmailService.sendVerificationEmail(twoFactorAuth.getUser(), twoFactorAuth);
+        try{
+            validationExpirationCode(twoFactorAuth);
+            var remainingTerm = twoFactorAuth.getExpirationAt().getMinute() - LocalDateTime.now().getMinute();
+            throw new BusinessRuleException("The code sent is still valid. You can request a new code only after "+ remainingTerm +" minutes or when the current code expires.");
+        }catch (BudgetMasterSecurityException e){
+            twoFactorAuth.setSecret(generatedSecureSecret(twoFactorAuth.getType2FA()));
+            twoFactorAuth.setExpirationAt(generatedExpirationAt(twoFactorAuth.getType2FA()));
+            repository.save(twoFactorAuth);
+            factorAuthEmailService.sendVerificationEmail(twoFactorAuth.getUser(), twoFactorAuth);
+        }
     }
 
     public void generatedCodeTwoFactorAuth(SignInDTO data){
@@ -55,23 +62,22 @@ public class TwoFactorAuthService {
             factorAuthEmailService.sendTwoFactorAuthentication(user, twoFactorAuth, data);
         }
     }
-    public void validationAndActiveTwoFactorAuth(RequestValid2faDTO requestValid2faDTO){
+    public TwoFactorAuth validationAndActivationTwoFactorAuth(RequestValid2faDTO requestValid2faDTO){
         var twoFactorAuth = repository.findBySecret(requestValid2faDTO.code())
                 .orElseThrow(() -> new BusinessRuleException("invalid code, check the code entered."));
+
         if(twoFactorAuth.getType2FA().equals(Type2FA.EMAIL)){
             validationExpirationCode(twoFactorAuth);
         }
-        twoFactorAuth.setActive();
-        repository.save(twoFactorAuth);
-    }
-    public TwoFactorAuth validationTwoFactorAuth(RequestValid2faDTO requestValid2faDTO){
-        var twoFactorAuth = repository.findBySecret(requestValid2faDTO.code())
-                .orElseThrow(() -> new BusinessRuleException("invalid code, check the code entered."));
-        if(twoFactorAuth.getType2FA().equals(Type2FA.EMAIL)){
-            validationExpirationCode(twoFactorAuth);
+
+
+        if(!twoFactorAuth.getIsActive()){
+            twoFactorAuth.setActive();
+            repository.save(twoFactorAuth);
         }
         return twoFactorAuth;
     }
+
 
     private String generatedSecureSecret(Type2FA type2FA){
         if (type2FA.equals(Type2FA.EMAIL)){
@@ -92,6 +98,6 @@ public class TwoFactorAuthService {
     private void validationExpirationCode(TwoFactorAuth twoFactorAuth){
         if (twoFactorAuth.getExpirationAt() == null) return;
         if (LocalDateTime.now().isAfter(twoFactorAuth.getExpirationAt()))
-            throw new BusinessRuleException("Invalid token! The code expiration time has been exceeded.");
+            throw new BudgetMasterSecurityException("Invalid token! The code expiration time has been exceeded.");
     }
 }

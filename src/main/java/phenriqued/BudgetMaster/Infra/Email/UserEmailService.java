@@ -1,8 +1,8 @@
 package phenriqued.BudgetMaster.Infra.Email;
 
 import org.springframework.stereotype.Service;
-import phenriqued.BudgetMaster.Infra.Security.Service.SecurityUserTokenService;
-import phenriqued.BudgetMaster.Infra.Security.Token.TokenType;
+import phenriqued.BudgetMaster.Services.Security.SecurityUserTokensService.SecurityUserTokenService;
+import phenriqued.BudgetMaster.Models.Security.Token.TokenType;
 import phenriqued.BudgetMaster.Models.UserEntity.User;
 
 @Service

@@ -1,4 +1,4 @@
-package phenriqued.BudgetMaster.Repositories.Security.TwoFactorAuthentication;
+package phenriqued.BudgetMaster.Repositories.Security;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import phenriqued.BudgetMaster.Models.Security.TwoFactorAuthentication.TwoFactorAuth;

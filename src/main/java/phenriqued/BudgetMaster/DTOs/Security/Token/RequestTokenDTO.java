@@ -1,4 +1,4 @@
-package phenriqued.BudgetMaster.DTOs.Token;
+package phenriqued.BudgetMaster.DTOs.Security.Token;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

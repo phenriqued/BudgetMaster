@@ -1,4 +1,4 @@
-package phenriqued.BudgetMaster.Infra.Security.Service;
+package phenriqued.BudgetMaster.Services.Security.TokensService;
 
 
 import lombok.AllArgsConstructor;
@@ -6,13 +6,15 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import phenriqued.BudgetMaster.DTOs.Token.TokenDTO;
+import phenriqued.BudgetMaster.DTOs.Security.Token.TokenDTO;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
-import phenriqued.BudgetMaster.Infra.Security.Token.SecurityUserToken;
-import phenriqued.BudgetMaster.Infra.Security.Token.TokenType;
+import phenriqued.BudgetMaster.Infra.Security.Service.JWTService;
+import phenriqued.BudgetMaster.Models.Security.Token.SecurityUserToken;
+import phenriqued.BudgetMaster.Models.Security.Token.TokenType;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
 import phenriqued.BudgetMaster.Models.UserEntity.User;
-import phenriqued.BudgetMaster.Repositories.SecurityData.SecurityUserTokenRepository;
+import phenriqued.BudgetMaster.Repositories.Security.SecurityUserTokenRepository;
+import phenriqued.BudgetMaster.Services.Security.SecurityUserTokensService.SecurityUserTokenService;
 
 import java.util.List;
 import java.util.Objects;

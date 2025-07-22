@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import phenriqued.BudgetMaster.Infra.Email.UserEmailService;
-import phenriqued.BudgetMaster.Repositories.SecurityData.SecurityUserTokenRepository;
+import phenriqued.BudgetMaster.Repositories.Security.SecurityUserTokenRepository;
 import phenriqued.BudgetMaster.Repositories.UserRepository.UserRepository;
 
 import java.time.LocalDateTime;

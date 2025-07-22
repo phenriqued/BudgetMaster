@@ -3,13 +3,13 @@ package phenriqued.BudgetMaster.Services.UserServices;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import phenriqued.BudgetMaster.DTOs.User.PasswordDTOs.RequestConfirmationPasswordUser;
-import phenriqued.BudgetMaster.DTOs.User.PasswordDTOs.RequestOnlyNewPasswordChangeDTO;
-import phenriqued.BudgetMaster.DTOs.User.PasswordDTOs.RequestPasswordChangeUserDTO;
+import phenriqued.BudgetMaster.DTOs.Security.PasswordDTOs.RequestConfirmationPasswordUser;
+import phenriqued.BudgetMaster.DTOs.Security.PasswordDTOs.RequestOnlyNewPasswordChangeDTO;
+import phenriqued.BudgetMaster.DTOs.Security.PasswordDTOs.RequestPasswordChangeUserDTO;
 import phenriqued.BudgetMaster.Infra.Email.UserEmailService;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BusinessRuleException;
-import phenriqued.BudgetMaster.Infra.Security.Service.TokenService;
+import phenriqued.BudgetMaster.Services.Security.TokensService.TokenService;
 import phenriqued.BudgetMaster.Models.UserEntity.User;
 import phenriqued.BudgetMaster.Repositories.UserRepository.UserRepository;
 

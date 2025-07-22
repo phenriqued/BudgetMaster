@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import phenriqued.BudgetMaster.DTOs.Login.RegisterUserDTO;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BusinessRuleException;
-import phenriqued.BudgetMaster.Infra.Security.Token.SecurityUserToken;
+import phenriqued.BudgetMaster.Models.Security.Token.SecurityUserToken;
 import phenriqued.BudgetMaster.Models.FamilyEntity.UserFamily;
 import phenriqued.BudgetMaster.Models.Security.TwoFactorAuthentication.TwoFactorAuth;
 import phenriqued.BudgetMaster.Models.Security.TwoFactorAuthentication.Type2FA;
