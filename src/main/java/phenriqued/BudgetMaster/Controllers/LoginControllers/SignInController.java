@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import phenriqued.BudgetMaster.DTOs.Login.SignInDTO;
+import phenriqued.BudgetMaster.DTOs.Security.Token.RequestRefreshTokenDTO;
+import phenriqued.BudgetMaster.DTOs.Security.Token.TokenDTO;
 import phenriqued.BudgetMaster.DTOs.Security.Token.TokenSignInDTO;
 import phenriqued.BudgetMaster.DTOs.Security.TwoFactorAuth.RequestValidSignIn2faDTO;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
@@ -14,7 +16,7 @@ import phenriqued.BudgetMaster.Services.LoginService.SignInService;
 import java.net.URI;
 
 @RestController
-@RequestMapping("login/signin")
+@RequestMapping("/login")
 public class SignInController {
 
     private final SignInService service;
@@ -23,12 +25,12 @@ public class SignInController {
         this.service = service;
     }
 
-    @GetMapping
+    @GetMapping("/signin")
     public ResponseEntity<Void> getSignIn(){
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping
+    @PostMapping("/signin")
     public ResponseEntity<TokenSignInDTO> signIn(@RequestBody @Valid SignInDTO signInData){
         return ResponseEntity.ok(service.logIntoAccount(signInData));
     }
@@ -43,5 +45,10 @@ public class SignInController {
             httpHeaders.setLocation(URI.create(url));
             return new ResponseEntity<>(httpHeaders, HttpStatus.FOUND);
         }
+    }
+
+    @PostMapping("/update-token")
+    public ResponseEntity<TokenDTO> updateTokens(@RequestBody @Valid RequestRefreshTokenDTO refreshTokenDTO){
+        return ResponseEntity.ok(service.updateTokens(refreshTokenDTO));
     }
 }

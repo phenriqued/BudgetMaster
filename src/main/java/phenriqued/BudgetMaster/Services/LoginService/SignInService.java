@@ -1,5 +1,6 @@
 package phenriqued.BudgetMaster.Services.LoginService;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DisabledException;
@@ -8,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import phenriqued.BudgetMaster.DTOs.Login.SignInDTO;
+import phenriqued.BudgetMaster.DTOs.Security.Token.RequestRefreshTokenDTO;
 import phenriqued.BudgetMaster.DTOs.Security.Token.TokenSignInDTO;
 import phenriqued.BudgetMaster.DTOs.Security.TwoFactorAuth.RequestValid2faDTO;
 import phenriqued.BudgetMaster.DTOs.Security.Token.TokenDTO;
@@ -67,4 +69,10 @@ public class SignInService{
                 TokenType.valueOf(code.tokenType().toUpperCase()), code.identifier());
     }
 
+    public TokenDTO updateTokens(RequestRefreshTokenDTO refreshTokenDTO) {
+        var userDetails = tokenService.findByToken(refreshTokenDTO.refreshToken()).getUser();
+        tokenService.verifySecurityUserToken(refreshTokenDTO.refreshToken());
+        return tokenService.generatedRefreshTokenAndTokenJWT(new UserDetailsImpl(userDetails), TokenType.valueOf(refreshTokenDTO.tokenType().toUpperCase()),
+                refreshTokenDTO.identifier());
+    }
 }
