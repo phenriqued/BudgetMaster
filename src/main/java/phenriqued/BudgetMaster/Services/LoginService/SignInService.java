@@ -40,7 +40,7 @@ public class SignInService{
             var user = userDetails.getUser();
             if(user.isTwoFactorAuthEnabled()){
                 String twoFactorAuth = twoFactorAuthService.generatedCodeTwoFactorAuth(signInDTO);
-                String securityUserToken2fa = tokenService.generatedSecurityUserToken2FA(user, signInDTO.identifier());
+                String securityUserToken2fa = tokenService.generatedSecurityUserToken2FA(user);
                 return new TokenSignInDTO(null, null, twoFactorAuth, securityUserToken2fa);
             }
 
@@ -51,7 +51,7 @@ public class SignInService{
             userService.activateAccount(user);
             if(user.isTwoFactorAuthEnabled()){
                 String twoFactorAuth = twoFactorAuthService.generatedCodeTwoFactorAuth(signInDTO);
-                String securityUserToken2fa = tokenService.generatedSecurityUserToken2FA(user, signInDTO.identifier());;
+                String securityUserToken2fa = tokenService.generatedSecurityUserToken2FA(user);;
                 return new TokenSignInDTO(null, null, twoFactorAuth, securityUserToken2fa);
             }
         }

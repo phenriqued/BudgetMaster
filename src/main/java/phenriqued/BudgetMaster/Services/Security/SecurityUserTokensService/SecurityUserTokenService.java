@@ -58,7 +58,8 @@ public class SecurityUserTokenService {
     }
 
     @Transactional
-    public String generatedSecurityUserToken2FA(User user, TokenType tokenType, String identifier,Integer expirationTime){
+    public String generatedSecurityUserToken2FA(User user, TokenType tokenType, Integer expirationTime){
+        String identifier = "two-factor-authentication-"+tokenType.toString()+user.getId();
         LocalDateTime expirationToken = LocalDateTime.now().plusMinutes(expirationTime);
         return
                 repository.save(new SecurityUserToken(user, tokenType, identifier, expirationToken)).getToken();

@@ -33,9 +33,9 @@ public class TokenService {
         return new TokenDTO(tokenJWT, refreshToken);
     }
 
-    public String generatedSecurityUserToken2FA(User user, String identifier){
+    public String generatedSecurityUserToken2FA(User user){
         return
-            securityUserTokenService.generatedSecurityUserToken2FA(user, TokenType.OPEN_ID, identifier, 5);
+            securityUserTokenService.generatedSecurityUserToken2FA(user, TokenType.OPEN_ID, 5);
     }
 
     public String validationTokenJWT(String tokenJwt){
