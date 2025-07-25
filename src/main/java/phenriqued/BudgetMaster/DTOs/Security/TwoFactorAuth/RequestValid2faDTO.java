@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 public record RequestValid2faDTO(
         @NotBlank
         String code,
-        String tokenType,
-        String identifier
-) {
+        @NotBlank
+        String type2fa) {
 }

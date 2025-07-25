@@ -12,5 +12,8 @@ public interface TwoFactorAuthRepository extends JpaRepository<TwoFactorAuth, UU
 
     Boolean existsByUserAndType2FA(User user, Type2FA type2FA);
 
+    Optional<TwoFactorAuth> findByUserAndType2FA(User user, Type2FA type2FA);
+
+    Optional<TwoFactorAuth> findBySecretAndUser(String secret, User user);
     Optional<TwoFactorAuth> findBySecret(String secret);
 }

@@ -57,6 +57,12 @@ public class SecurityUserTokenService {
         return repository.save(new SecurityUserToken(user, tokenType, identifier, expirationToken)).getToken();
     }
 
+    @Transactional
+    public String generatedSecurityUserToken2FA(User user, TokenType tokenType, String identifier,Integer expirationTime){
+        LocalDateTime expirationToken = LocalDateTime.now().plusMinutes(expirationTime);
+        return
+                repository.save(new SecurityUserToken(user, tokenType, identifier, expirationToken)).getToken();
+    }
 
     public void tokenValidation(String token) throws BudgetMasterSecurityException{
         var tokenVerification = repository.findByToken(token)

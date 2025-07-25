@@ -60,8 +60,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public void activateAccount(String email){
-        var userActivate = findUserByEmail(email);
+    public void activateAccount(User userActivate){
         userActivate.setIsActive();
         userActivate.setDeleteAt();
         userEmailService.sendActivateAccount(userActivate);

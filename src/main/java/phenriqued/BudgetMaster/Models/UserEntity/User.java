@@ -80,14 +80,5 @@ public class User {
 
         return twoFactorAuths.stream().anyMatch(TwoFactorAuth::getIsActive);
     }
-    public TwoFactorAuth priorityOrderTwoFactorAuth(){
-        if (!isTwoFactorAuthEnabled()) throw new BusinessRuleException("there is no active two-factor authentication");
-        var twoFactorAuthIsActive = twoFactorAuths.stream().filter(TwoFactorAuth::getIsActive).toList();
-
-        return twoFactorAuthIsActive.stream().filter(twoFactorAuth -> twoFactorAuth.getType2FA().equals(Type2FA.AUTHENTICATOR)).findFirst()
-                .orElse(twoFactorAuthIsActive.stream().filter(twoFactorAuth -> twoFactorAuth.getType2FA().equals(Type2FA.EMAIL)).findFirst()
-                        .orElseThrow(() -> new BusinessRuleException("[INTERNAL ERROR]: there is no active two-factor authentication")));
-
-    }
 
 }

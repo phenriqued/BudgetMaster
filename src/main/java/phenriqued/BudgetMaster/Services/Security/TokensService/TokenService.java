@@ -33,6 +33,11 @@ public class TokenService {
         return new TokenDTO(tokenJWT, refreshToken);
     }
 
+    public String generatedSecurityUserToken2FA(User user, String identifier){
+        return
+            securityUserTokenService.generatedSecurityUserToken2FA(user, TokenType.OPEN_ID, identifier, 5);
+    }
+
     public String validationTokenJWT(String tokenJwt){
         return jwtService.tokenJWTValidation(tokenJwt);
     }
@@ -49,13 +54,13 @@ public class TokenService {
     @Transactional
     public void deleteToken(SecurityUserToken token){
         if(!tokenRepository.existsById(token.getId())) throw new BudgetMasterSecurityException("invalid token!");
-        tokenRepository.delete(token);
+        tokenRepository.deleteById(token.getId());
     }
 
     @Transactional
     public void deleteAllTokensByUser(User user){
         if (Objects.isNull(user)){
-            Logger logger = (Logger) LoggerFactory.getLogger(TokenService.class);
+            Logger logger = LoggerFactory.getLogger(TokenService.class);
             logger.error("Unable to delete tokens because user is null.");
             return;
         }
@@ -64,7 +69,7 @@ public class TokenService {
     @Transactional
     public void deleteAllTokensByUserExceptOpenID(User user){
         if (Objects.isNull(user)){
-            Logger logger = (Logger) LoggerFactory.getLogger(TokenService.class);
+            Logger logger = LoggerFactory.getLogger(TokenService.class);
             logger.error("Unable to delete tokens because user is null.");
             return;
         }

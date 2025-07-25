@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import phenriqued.BudgetMaster.DTOs.Login.SignInDTO;
 import phenriqued.BudgetMaster.DTOs.Security.TwoFactorAuth.Request2faActiveDTO;
-import phenriqued.BudgetMaster.DTOs.Security.TwoFactorAuth.RequestValid2faDTO;
-import phenriqued.BudgetMaster.Infra.Email.TwoFactorAuthEmailService;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BusinessRuleException;
 import phenriqued.BudgetMaster.Models.Security.TwoFactorAuthentication.TwoFactorAuth;
@@ -14,62 +12,63 @@ import phenriqued.BudgetMaster.Models.UserEntity.User;
 import phenriqued.BudgetMaster.Repositories.Security.TwoFactorAuthRepository;
 import phenriqued.BudgetMaster.Services.UserServices.UserService;
 
-import java.security.SecureRandom;
-import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.Objects;
 
 @Service
 @AllArgsConstructor
 public class TwoFactorAuthService {
 
     private final TwoFactorAuthRepository repository;
-    private final TwoFactorAuthEmailService factorAuthEmailService;
     private final UserService userService;
+    private final OtpEmailService otpEmail;
+    private final TotpAuthenticatorService totpAuthenticator;
 
-    public void createTwoFactorAuth(Request2faActiveDTO request2faDTO, User user) {
+    public String createTwoFactorAuth(Request2faActiveDTO request2faDTO, String username) {
+        var user = userService.findUserByEmail(username);
         var type2fa = Type2FA.valueOf(request2faDTO.type2FA());
         if(repository.existsByUserAndType2FA(user, type2fa))
             throw new BusinessRuleException("there is already an active two-factor authentication of type "+type2fa);
 
-        var entity2fa = new TwoFactorAuth(user, type2fa, generatedSecureSecret(type2fa), generatedExpirationAt(type2fa));
-        System.out.println(entity2fa.getType2FA());
-        repository.save(entity2fa);
-        factorAuthEmailService.sendVerificationEmail(user, entity2fa);
-    }
-    public void resendActivatedTwoFactorAuth(String code){
-        var twoFactorAuth = repository.findBySecret(code)
-                .orElseThrow(()-> new BusinessRuleException("Invalid code, cannot find code!"));
-        try{
-            validationExpirationCode(twoFactorAuth);
-            var remainingTerm = twoFactorAuth.getExpirationAt().getMinute() - LocalDateTime.now().getMinute();
-            throw new BusinessRuleException("The code sent is still valid. You can request a new code only after "+ remainingTerm +" minutes or when the current code expires.");
-        }catch (BudgetMasterSecurityException e){
-            twoFactorAuth.setSecret(generatedSecureSecret(twoFactorAuth.getType2FA()));
-            twoFactorAuth.setExpirationAt(generatedExpirationAt(twoFactorAuth.getType2FA()));
-            repository.save(twoFactorAuth);
-            factorAuthEmailService.sendVerificationEmail(twoFactorAuth.getUser(), twoFactorAuth);
+        if (type2fa.equals(Type2FA.AUTHENTICATOR)){
+            return totpAuthenticator.generatedAuthenticatorQrCode(user);
+        } else if (type2fa.equals(Type2FA.EMAIL)) {
+            otpEmail.createSecurityCode(user);
         }
+        return "Code sent successfully";
     }
 
-    public void generatedCodeTwoFactorAuth(SignInDTO data){
-        User user = userService.findUserByEmail(data.email());
-        var twoFactorAuth = user.priorityOrderTwoFactorAuth();
-        if(twoFactorAuth.getType2FA().equals(Type2FA.AUTHENTICATOR)){
-            //gerar Secret
-        }else {
-            twoFactorAuth.setSecret(generatedSecureSecret(twoFactorAuth.getType2FA()));
-            twoFactorAuth.setExpirationAt(generatedExpirationAt(twoFactorAuth.getType2FA()));
-            repository.save(twoFactorAuth);
-            factorAuthEmailService.sendTwoFactorAuthentication(user, twoFactorAuth, data);
-        }
-    }
-    public TwoFactorAuth validationAndActivationTwoFactorAuth(RequestValid2faDTO requestValid2faDTO){
-        var twoFactorAuth = repository.findBySecret(requestValid2faDTO.code())
+    public void resendActivatedTwoFactorAuth(String code, String username){
+        var user = userService.findUserByEmail(username);
+        var twoFactorAuth = repository.findBySecretAndUser(code, user)
                 .orElseThrow(() -> new BusinessRuleException("invalid code, check the code entered."));
-
-        if(twoFactorAuth.getType2FA().equals(Type2FA.EMAIL)){
-            validationExpirationCode(twoFactorAuth);
+        if (twoFactorAuth.getType2FA().equals(Type2FA.EMAIL)){
+            otpEmail.resendSecurityCode(twoFactorAuth.getUser());
         }
+    }
 
+    public String generatedCodeTwoFactorAuth(SignInDTO data){
+        User user = userService.findUserByEmail(data.email());
+        var twoFactorAuth = priorityOrderTwoFactorAuth(user);
+
+        if(twoFactorAuth.getType2FA().equals(Type2FA.AUTHENTICATOR)){
+            return "access the authenticator";
+        }else {
+            otpEmail.generatedSecurityCodeTwoFactorAuth(user, data);
+        }
+        return "Code sent successfully";
+    }
+
+    public TwoFactorAuth validationAndActivationTwoFactorAuth(String username, String code, String type2fa){
+        User user = userService.findUserByEmail(username);
+        var twoFactorAuth = repository.findByUserAndType2FA(user, Type2FA.valueOf(type2fa.toUpperCase()))
+                .orElseThrow(() -> new BusinessRuleException("[ERROR] Code or Type two factor auth is invalid!"));
+
+        if(twoFactorAuth.getType2FA().equals(Type2FA.AUTHENTICATOR)){
+            totpAuthenticator.validationAuthenticatorCode(code, twoFactorAuth);
+        } else if (twoFactorAuth.getType2FA().equals(Type2FA.EMAIL)) {
+            otpEmail.validationSecurityCodeEmail(code);
+        }
 
         if(!twoFactorAuth.getIsActive()){
             twoFactorAuth.setActive();
@@ -78,26 +77,27 @@ public class TwoFactorAuthService {
         return twoFactorAuth;
     }
 
-
-    private String generatedSecureSecret(Type2FA type2FA){
-        if (type2FA.equals(Type2FA.EMAIL)){
-            SecureRandom secureRandom = new SecureRandom();
-            StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 0; i<6; i++){
-                stringBuilder.append(secureRandom.nextInt(10));
-            }
-            return stringBuilder.toString();
-        }else if (type2FA.equals(Type2FA.AUTHENTICATOR)){
-            return "...";
+    private TwoFactorAuth priorityOrderTwoFactorAuth(User  user){
+        if (!user.isTwoFactorAuthEnabled()) {
+            throw new BusinessRuleException("there is no active two-factor authentication");
         }
-        return "...";
+
+        //primeiro denifir uma ordem de prioridade e depois pegar o tipo de a2f com base na ordem
+        Comparator<TwoFactorAuth> priorityComparator = Comparator.comparingInt(a2f -> {
+            if (a2f.getType2FA().equals(Type2FA.AUTHENTICATOR)) {
+                return 0;
+            } else if (a2f.getType2FA().equals(Type2FA.EMAIL)) {
+                return 1;
+            }
+            return Integer.MAX_VALUE;
+        });
+
+        return user.getTwoFactorAuths().stream()
+                .filter(Objects::nonNull)
+                .filter(TwoFactorAuth::getIsActive)
+                .sorted(priorityComparator)
+                .findFirst()
+                .orElseThrow(() -> new BudgetMasterSecurityException("[INTERNAL ERROR]: No active two-factor authentication with recognized priority found."));
     }
-    private LocalDateTime generatedExpirationAt(Type2FA type2FA){
-        return type2FA.equals(Type2FA.EMAIL) ? LocalDateTime.now().plusMinutes(5) : null;
-    }
-    private void validationExpirationCode(TwoFactorAuth twoFactorAuth){
-        if (twoFactorAuth.getExpirationAt() == null) return;
-        if (LocalDateTime.now().isAfter(twoFactorAuth.getExpirationAt()))
-            throw new BudgetMasterSecurityException("Invalid token! The code expiration time has been exceeded.");
-    }
+
 }
