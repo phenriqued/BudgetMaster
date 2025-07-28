@@ -12,15 +12,16 @@ import phenriqued.BudgetMaster.DTOs.Security.Token.TokenDTO;
 import phenriqued.BudgetMaster.Infra.Email.SecurityEmailService;
 import phenriqued.BudgetMaster.Infra.Email.UserEmailService;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
-import phenriqued.BudgetMaster.Services.Security.TokensService.TokenService;
+import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BusinessRuleException;
+import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
 import phenriqued.BudgetMaster.Models.Security.Token.SecurityUserToken;
 import phenriqued.BudgetMaster.Models.Security.Token.TokenType;
-import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
 import phenriqued.BudgetMaster.Models.UserEntity.Role.Role;
 import phenriqued.BudgetMaster.Models.UserEntity.Role.RoleName;
 import phenriqued.BudgetMaster.Models.UserEntity.User;
 import phenriqued.BudgetMaster.Repositories.RoleRepository.RoleRepository;
 import phenriqued.BudgetMaster.Repositories.UserRepository.UserRepository;
+import phenriqued.BudgetMaster.Services.Security.TokensService.TokenService;
 
 @Service
 @AllArgsConstructor
@@ -60,7 +61,7 @@ public class SignUpService {
         try{
             tokenService.verifySecurityUserToken(token.getToken());
             return false;
-        }catch (BudgetMasterSecurityException e){
+        }catch (BusinessRuleException e){
             emailService.sendVerificationEmail(token.getUser());
             return true;
         }

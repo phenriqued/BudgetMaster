@@ -13,7 +13,6 @@ public record RegisterUserDTO(
         @Email
         @NotNull
         String email,
-        @NotNull
         @NotBlank
         @PasswordValid
         String password

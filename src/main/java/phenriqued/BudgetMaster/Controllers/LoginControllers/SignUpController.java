@@ -33,14 +33,16 @@ public class SignUpController {
     }
 
     @PutMapping("/activate-user")
-    public ResponseEntity<TokenDTO> activationUser(@RequestParam("code") String code, @RequestBody @Valid RequestTokenDTO requestTokenDTO){
+    public ResponseEntity<?> activationUser(@RequestParam("code") String code, @RequestBody @Valid RequestTokenDTO requestTokenDTO){
         try {
             return ResponseEntity.ok().body(service.activateUser(code, requestTokenDTO));
-        } catch (BudgetMasterSecurityException | BusinessRuleException e) {
+        } catch (BusinessRuleException e) {
             String uriSendNewCode = "http://localhost:8080/login/resend-code?code="+code;
             HttpHeaders headers = new HttpHeaders();
             headers.setLocation(URI.create(uriSendNewCode));
             return new ResponseEntity<>(headers, HttpStatus.FOUND);
+        } catch (BudgetMasterSecurityException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

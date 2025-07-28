@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
+import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BusinessRuleException;
 import phenriqued.BudgetMaster.Models.Security.Token.SecurityUserToken;
 import phenriqued.BudgetMaster.Models.Security.Token.TokenType;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
@@ -70,7 +71,7 @@ public class SecurityUserTokenService {
                 .orElseThrow(() -> new BudgetMasterSecurityException("Unable to verify a non-existent token, please verify the token"));
 
         if(LocalDateTime.now().isAfter(tokenVerification.getExpirationToken()))
-            throw new BudgetMasterSecurityException("Invalid token! The token expiration time has been exceeded.");
+            throw new BusinessRuleException("Invalid token! The token expiration time has been exceeded.");
 
     }
 
