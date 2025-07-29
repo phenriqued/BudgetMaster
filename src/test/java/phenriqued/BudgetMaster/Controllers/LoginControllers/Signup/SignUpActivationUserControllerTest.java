@@ -2,7 +2,10 @@ package phenriqued.BudgetMaster.Controllers.LoginControllers.Signup;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,8 +15,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import phenriqued.BudgetMaster.DTOs.Login.RegisterUserDTO;
 import phenriqued.BudgetMaster.DTOs.Security.Token.RequestTokenDTO;
-import phenriqued.BudgetMaster.Infra.Email.UserEmailService;
-import phenriqued.BudgetMaster.Models.UserEntity.User;
+import phenriqued.BudgetMaster.Infra.Email.EmailService;
 import phenriqued.BudgetMaster.Repositories.Security.SecurityUserTokenRepository;
 import phenriqued.BudgetMaster.Repositories.UserRepository.UserRepository;
 import phenriqued.BudgetMaster.Services.LoginService.SignUpService;
@@ -23,7 +25,8 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -40,7 +43,7 @@ public class SignUpActivationUserControllerTest {
     @Autowired
     private SecurityUserTokenRepository tokenRepository;
     @MockitoBean
-    private UserEmailService userEmailService;
+    private EmailService emailService;
 
     @Autowired
     private SignUpService signUpService;
@@ -74,7 +77,7 @@ public class SignUpActivationUserControllerTest {
 
         var userActivated = userRepository.findByEmail(userDataTeste.email()).orElseThrow();
         assertTrue(userActivated.getIsActive());
-        verify(userEmailService, times(1)).sendActivateAccount(user);
+        verify(emailService, times(2)).sendMail(any(), any(), any());
     }
 
     @Test
@@ -92,7 +95,7 @@ public class SignUpActivationUserControllerTest {
 
         var userActivated = userRepository.findByEmail(userDataTeste.email()).orElseThrow();
         assertFalse(userActivated.getIsActive());
-        verify(userEmailService, never()).sendActivateAccount(any(User.class));
+        verify(emailService, times(1)).sendMail(any(), any(), any());
     }
 
     @Test
@@ -114,7 +117,7 @@ public class SignUpActivationUserControllerTest {
 
         var userActivated = userRepository.findByEmail(userDataTeste.email()).orElseThrow();
         assertFalse(userActivated.getIsActive());
-        verify(userEmailService, never()).sendActivateAccount(any(User.class));
+        verify(emailService, times(1)).sendMail(any(), any(), any());
     }
 
     @Test

@@ -1,22 +1,19 @@
 package phenriqued.BudgetMaster.Services.LoginService;
 
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import phenriqued.BudgetMaster.DTOs.Login.SignInDTO;
 import phenriqued.BudgetMaster.DTOs.Security.Token.RequestRefreshTokenDTO;
-import phenriqued.BudgetMaster.DTOs.Security.Token.TokenSignInDTO;
-import phenriqued.BudgetMaster.DTOs.Security.TwoFactorAuth.RequestValid2faDTO;
 import phenriqued.BudgetMaster.DTOs.Security.Token.TokenDTO;
+import phenriqued.BudgetMaster.DTOs.Security.Token.TokenSignInDTO;
 import phenriqued.BudgetMaster.DTOs.Security.TwoFactorAuth.RequestValidSignIn2faDTO;
-import phenriqued.BudgetMaster.Services.Security.TokensService.TokenService;
-import phenriqued.BudgetMaster.Models.Security.Token.TokenType;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
+import phenriqued.BudgetMaster.Models.Security.Token.TokenType;
+import phenriqued.BudgetMaster.Services.Security.TokensService.TokenService;
 import phenriqued.BudgetMaster.Services.Security.TwoFactorAuthServices.TwoFactorAuthService;
 import phenriqued.BudgetMaster.Services.UserServices.UserService;
 

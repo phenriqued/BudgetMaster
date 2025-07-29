@@ -43,9 +43,9 @@ public class User {
     private LocalDate createdAt;
     private LocalDateTime deleteAt;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<SecurityUserToken> securityUserTokens = new ArrayList<>();
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<TwoFactorAuth> twoFactorAuths = new ArrayList<>();
 
     public User(RegisterUserDTO userDTO, String password, Role role){

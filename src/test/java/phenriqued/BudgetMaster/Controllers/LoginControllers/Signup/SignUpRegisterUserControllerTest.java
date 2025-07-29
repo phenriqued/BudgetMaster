@@ -11,15 +11,14 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import phenriqued.BudgetMaster.DTOs.Login.RegisterUserDTO;
-import phenriqued.BudgetMaster.Infra.Email.SecurityEmailService;
+import phenriqued.BudgetMaster.Infra.Email.EmailService;
 import phenriqued.BudgetMaster.Models.UserEntity.User;
-import phenriqued.BudgetMaster.Repositories.RoleRepository.RoleRepository;
 import phenriqued.BudgetMaster.Repositories.UserRepository.UserRepository;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -33,7 +32,7 @@ class SignUpRegisterUserControllerTest {
     @Autowired
     private UserRepository userRepository;
     @MockitoBean
-    private SecurityEmailService securityEmailService;
+    private EmailService emailService;
 
     @Test
     @DisplayName("a user should be created when the data is correct")
@@ -49,7 +48,7 @@ class SignUpRegisterUserControllerTest {
                 .andExpect(content().string("Conta criada. Verifique seu e-mail."));
 
         assertTrue(userRepository.findByEmail("teste@email.com").isPresent());
-        verify(securityEmailService, times(1)).sendVerificationEmail(any(User.class));
+        verify(emailService, times(1)).sendMail(any(), any(), any());
     }
     @Test
     @DisplayName("a user should not be created when the password does not meet the requirements")
@@ -66,7 +65,7 @@ class SignUpRegisterUserControllerTest {
                         .value("Password must have at least one uppercase letter, one number, one special character, and be at least 6 characters long."));
 
         assertFalse(userRepository.findByEmail("testeII@email.com").isPresent());
-        verify(securityEmailService, times(0)).sendVerificationEmail(any(User.class));
+        verify(emailService, never()).sendMail(any(), any(), any());
     }
     @Test
     @DisplayName("a user should not be created when the email does not meet the requirements")
@@ -83,6 +82,6 @@ class SignUpRegisterUserControllerTest {
                         .value("must be a well-formed email address"));
 
         assertFalse(userRepository.findByEmail("testeIIIemailcom").isPresent());
-        verify(securityEmailService, times(0)).sendVerificationEmail(any(User.class));
+        verify(emailService, never()).sendMail(any(), any(), any());
     }
 }

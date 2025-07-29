@@ -12,7 +12,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Objects;
 
 @Service
-class EmailService {
+public class EmailService {
 
     private final JavaMailSender mailSender;
     private static final String ORIGIN_MAIL = "support@BudgetMaster.com";
@@ -23,7 +23,7 @@ class EmailService {
     }
 
     @Async
-    protected void sendMail(String userEmail, String subject, String content) {
+    public void sendMail(String userEmail, String subject, String content) {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
         try {
