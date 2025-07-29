@@ -2,9 +2,7 @@ package phenriqued.BudgetMaster.Controllers.LoginControllers.Signup;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -41,11 +39,17 @@ public class SignUpActivationUserControllerTest {
     private UserRepository userRepository;
     @Autowired
     private SecurityUserTokenRepository tokenRepository;
-    @Autowired
-    private SignUpService signUpService;
     @MockitoBean
     private UserEmailService userEmailService;
 
+    @Autowired
+    private SignUpService signUpService;
+    private RegisterUserDTO userDataTeste =  new RegisterUserDTO("teste", "teste@email.com", "Teste123@");
+
+    @BeforeEach
+    void setup(){
+        signUpService.registerUser(userDataTeste);
+    }
     @AfterEach
     void afterEach(){
         userRepository.deleteAll();
@@ -55,10 +59,7 @@ public class SignUpActivationUserControllerTest {
     @DisplayName("must activate a user that contains the correct OPEN ID token")
     void  shouldActivateUserSuccessfully() throws Exception {
         //arrange
-        var data = new RegisterUserDTO("teste", "teste@email.com", "Teste123@");
-        signUpService.registerUser(data);
-
-        var user = userRepository.findByEmail(data.email()).orElseThrow(EntityNotFoundException::new);
+        var user = userRepository.findByEmail(userDataTeste.email()).orElseThrow(EntityNotFoundException::new);
         var tokenActiveUser = tokenRepository.findByIdentifierAndUser("internal-activation-user-"+user.getId(), user)
                 .orElseThrow().getToken();
         String json = new ObjectMapper().writeValueAsString(new RequestTokenDTO("WEB", "teste"));
@@ -71,7 +72,7 @@ public class SignUpActivationUserControllerTest {
                 .andExpect(jsonPath("$.token").isString())
                 .andExpect(jsonPath("$.refreshToken").isString());
 
-        var userActivated = userRepository.findByEmail(data.email()).orElseThrow();
+        var userActivated = userRepository.findByEmail(userDataTeste.email()).orElseThrow();
         assertTrue(userActivated.getIsActive());
         verify(userEmailService, times(1)).sendActivateAccount(user);
     }
@@ -80,11 +81,7 @@ public class SignUpActivationUserControllerTest {
     @DisplayName("should not activate user when there is an invalid Open ID token")
     void shouldNotActivateUserWhenTokenIsInvalid() throws Exception {
         //arrange
-        var data = new RegisterUserDTO("teste", "teste@email.com", "Teste123@");
-        signUpService.registerUser(data);
-
         String json = new ObjectMapper().writeValueAsString(new RequestTokenDTO("WEB", "teste"));
-
         //action and assert
         mockMvc.perform(put("/login/activate-user?code=invalidToken123")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -93,7 +90,7 @@ public class SignUpActivationUserControllerTest {
                 .andExpect(content().string("[ERROR] invalid code or could not find token!"));
 
 
-        var userActivated = userRepository.findByEmail(data.email()).orElseThrow();
+        var userActivated = userRepository.findByEmail(userDataTeste.email()).orElseThrow();
         assertFalse(userActivated.getIsActive());
         verify(userEmailService, never()).sendActivateAccount(any(User.class));
     }
@@ -102,15 +99,11 @@ public class SignUpActivationUserControllerTest {
     @DisplayName("Should redirect with 302 when token has been exceeded for activation")
     void shouldNotActivateUserWhenTokenHasBeenExceeded() throws Exception {
         //arrange
-        var data = new RegisterUserDTO("teste", "teste@email.com", "Teste123@");
-        signUpService.registerUser(data);
-
-        var user = userRepository.findByEmail(data.email()).orElseThrow(EntityNotFoundException::new);
+        var user = userRepository.findByEmail(userDataTeste.email()).orElseThrow(EntityNotFoundException::new);
         var tokenActiveUser = tokenRepository.findByIdentifierAndUser("internal-activation-user-"+user.getId(), user).orElseThrow();
         tokenActiveUser.setExpirationToken(LocalDateTime.now().minusMinutes(10));
         tokenRepository.save(tokenActiveUser);
         String json = new ObjectMapper().writeValueAsString(new RequestTokenDTO("WEB", "teste"));
-
         //action and assert
         mockMvc.perform(put("/login/activate-user?code="+tokenActiveUser.getToken())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -119,7 +112,7 @@ public class SignUpActivationUserControllerTest {
                 .andExpect(header().string("Location", "http://localhost:8080/login/resend-code?code="+tokenActiveUser.getToken()));
 
 
-        var userActivated = userRepository.findByEmail(data.email()).orElseThrow();
+        var userActivated = userRepository.findByEmail(userDataTeste.email()).orElseThrow();
         assertFalse(userActivated.getIsActive());
         verify(userEmailService, never()).sendActivateAccount(any(User.class));
     }
@@ -127,10 +120,7 @@ public class SignUpActivationUserControllerTest {
     @Test
     @DisplayName("should send a new email with a new valid code")
     void ShouldSendNewValidCode() throws Exception {
-        var data = new RegisterUserDTO("teste", "teste@email.com", "Teste123@");
-        signUpService.registerUser(data);
-
-        var user = userRepository.findByEmail(data.email()).orElseThrow(EntityNotFoundException::new);
+        var user = userRepository.findByEmail(userDataTeste.email()).orElseThrow(EntityNotFoundException::new);
         var tokenActiveUser = tokenRepository.findByIdentifierAndUser("internal-activation-user-"+user.getId(), user).orElseThrow();
         tokenActiveUser.setExpirationToken(LocalDateTime.now().minusMinutes(10));
         tokenRepository.save(tokenActiveUser);
@@ -138,13 +128,11 @@ public class SignUpActivationUserControllerTest {
         mockMvc.perform(get("/login/resend-code?code="+tokenActiveUser.getToken()))
                 .andExpect(status().isOk());
     }
+
     @Test
     @DisplayName("should not send a new email with a new valid code when code is valid")
     void ShouldNotSendNewValidCodeWhenCodeIsValid() throws Exception {
-        var data = new RegisterUserDTO("teste", "teste@email.com", "Teste123@");
-        signUpService.registerUser(data);
-
-        var user = userRepository.findByEmail(data.email()).orElseThrow(EntityNotFoundException::new);
+        var user = userRepository.findByEmail(userDataTeste.email()).orElseThrow(EntityNotFoundException::new);
         var tokenActiveUser = tokenRepository.findByIdentifierAndUser("internal-activation-user-"+user.getId(), user).orElseThrow();
 
         mockMvc.perform(get("/login/resend-code?code="+tokenActiveUser.getToken()))

@@ -1,5 +1,6 @@
 package phenriqued.BudgetMaster.Controllers.LoginControllers.Signup;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import phenriqued.BudgetMaster.DTOs.Login.RegisterUserDTO;
 import phenriqued.BudgetMaster.Infra.Email.SecurityEmailService;
 import phenriqued.BudgetMaster.Models.UserEntity.User;
 import phenriqued.BudgetMaster.Repositories.RoleRepository.RoleRepository;
@@ -36,14 +38,9 @@ class SignUpRegisterUserControllerTest {
     @Test
     @DisplayName("a user should be created when the data is correct")
     void shouldReturn201WhenAllUserDatasIsCorrect() throws Exception {
-        String json = """
-                {
-                "name":"teste",
-                "email":"teste@email.com",
-                "password":"Teste123@"
-                }
-                """;
-
+        //Arrange
+        String json = new ObjectMapper().writeValueAsString(new RegisterUserDTO("teste", "teste@email.com","Teste123@" ));
+        //Action and Asserts
         mockMvc.perform(post("/login/signup")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
@@ -57,14 +54,9 @@ class SignUpRegisterUserControllerTest {
     @Test
     @DisplayName("a user should not be created when the password does not meet the requirements")
     void shouldReturn400WhenPasswordInvalid() throws Exception {
-        String json = """
-                {
-                "name":"testeII",
-                "email":"testeII@email.com",
-                "password":"teste"
-                }
-                """;
-
+        //Arrange
+        String json = new ObjectMapper().writeValueAsString(new RegisterUserDTO("teste", "teste@email.com","teste" ));
+        //Action and Asserts
         mockMvc.perform(post("/login/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
@@ -79,14 +71,9 @@ class SignUpRegisterUserControllerTest {
     @Test
     @DisplayName("a user should not be created when the email does not meet the requirements")
     void shouldReturn400WhenEmailInvalid() throws Exception {
-        String json = """
-                {
-                "name":"testeIII",
-                "email":"testeIIIemailcom",
-                "password":"Teste123@"
-                }
-                """;
-
+        //arrange
+        String json = new ObjectMapper().writeValueAsString(new RegisterUserDTO("teste", "testeIIIemailcom","Teste123@"));
+        //Action and Asserts
         mockMvc.perform(post("/login/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
