@@ -2,16 +2,14 @@ package phenriqued.BudgetMaster.Services.Security.TokensService;
 
 
 import lombok.AllArgsConstructor;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import phenriqued.BudgetMaster.DTOs.Security.Token.TokenDTO;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
 import phenriqued.BudgetMaster.Infra.Security.Service.JWTService;
+import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
 import phenriqued.BudgetMaster.Models.Security.Token.SecurityUserToken;
 import phenriqued.BudgetMaster.Models.Security.Token.TokenType;
-import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
 import phenriqued.BudgetMaster.Models.UserEntity.User;
 import phenriqued.BudgetMaster.Repositories.Security.SecurityUserTokenRepository;
 import phenriqued.BudgetMaster.Services.Security.SecurityUserTokensService.SecurityUserTokenService;
@@ -59,26 +57,20 @@ public class TokenService {
 
     @Transactional
     public void deleteAllTokensByUser(User user){
-        if (Objects.isNull(user)){
-            Logger logger = LoggerFactory.getLogger(TokenService.class);
-            logger.error("Unable to delete tokens because user is null.");
-            return;
-        }
-        tokenRepository.deleteAllByUser(user);
+        if (Objects.isNull(user)) return;
+        user.getSecurityUserTokens().clear();
     }
+
     @Transactional
     public void deleteAllTokensByUserExceptOpenID(User user){
-        if (Objects.isNull(user)){
-            Logger logger = LoggerFactory.getLogger(TokenService.class);
-            logger.error("Unable to delete tokens because user is null.");
-            return;
-        }
-        List<SecurityUserToken> tokens = user.getSecurityUserTokens();
-        for (SecurityUserToken userToken : tokens){
-            if (!userToken.getTokenType().equals(TokenType.OPEN_ID)){
-                tokenRepository.deleteAllByUserAndTokenType(user, userToken.getTokenType());
-            }
-        }
+        if (Objects.isNull(user)) return;
+
+        List<SecurityUserToken> toKeep = user.getSecurityUserTokens().stream()
+                .filter(t -> t.getTokenType().equals(TokenType.OPEN_ID))
+                .toList();
+
+        user.getSecurityUserTokens().clear(); // limpa tudo
+        user.getSecurityUserTokens().addAll(toKeep);
     }
 
 

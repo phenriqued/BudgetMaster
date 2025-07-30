@@ -38,7 +38,7 @@ public class UserHardDeleteScheduler {
         userRepository.findByDeleteAtIsNotNull().ifPresent(userList ->
                 userList.stream().filter(user -> expirationDate(user.getDeleteAt()))
                     .forEach(user -> {
-                        userTokenRepository.deleteAllByUser(user);
+                        user.getSecurityUserTokens().clear();
                         userRepository.deleteById(user.getId());
                         userEmailService.sendHardDeleteUser(user);
                 }));
