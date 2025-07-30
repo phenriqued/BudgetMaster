@@ -38,8 +38,9 @@ public class TwoFactorAuthService {
         return "Code sent successfully";
     }
 
-    public void resendActivatedTwoFactorAuth(String code, String username){
-        var user = userService.findUserByEmail(username);
+    public void resendActivatedTwoFactorAuth(String code){
+        var user = repository.findBySecret(code)
+                .orElseThrow(() -> new BusinessRuleException("invalid code, check the code entered.")).getUser();
         var twoFactorAuth = repository.findBySecretAndUser(code, user)
                 .orElseThrow(() -> new BusinessRuleException("invalid code, check the code entered."));
         if (twoFactorAuth.getType2FA().equals(Type2FA.EMAIL)){
