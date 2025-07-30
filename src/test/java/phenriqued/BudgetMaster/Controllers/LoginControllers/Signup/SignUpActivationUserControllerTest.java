@@ -112,7 +112,7 @@ public class SignUpActivationUserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isFound())
-                .andExpect(header().string("Location", "http://localhost:8080/login/resend-code?code="+tokenActiveUser.getToken()));
+                .andExpect(header().string("Location", "http://localhost:8080/account/two-factor-auth/resend-code?code="+tokenActiveUser.getToken()));
 
 
         var userActivated = userRepository.findByEmail(userDataTeste.email()).orElseThrow();
@@ -120,26 +120,4 @@ public class SignUpActivationUserControllerTest {
         verify(emailService, times(1)).sendMail(any(), any(), any());
     }
 
-    @Test
-    @DisplayName("should send a new email with a new valid code")
-    void ShouldSendNewValidCode() throws Exception {
-        var user = userRepository.findByEmail(userDataTeste.email()).orElseThrow(EntityNotFoundException::new);
-        var tokenActiveUser = tokenRepository.findByIdentifierAndUser("internal-activation-user-"+user.getId(), user).orElseThrow();
-        tokenActiveUser.setExpirationToken(LocalDateTime.now().minusMinutes(10));
-        tokenRepository.save(tokenActiveUser);
-
-        mockMvc.perform(get("/login/resend-code?code="+tokenActiveUser.getToken()))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    @DisplayName("should not send a new email with a new valid code when code is valid")
-    void ShouldNotSendNewValidCodeWhenCodeIsValid() throws Exception {
-        var user = userRepository.findByEmail(userDataTeste.email()).orElseThrow(EntityNotFoundException::new);
-        var tokenActiveUser = tokenRepository.findByIdentifierAndUser("internal-activation-user-"+user.getId(), user).orElseThrow();
-
-        mockMvc.perform(get("/login/resend-code?code="+tokenActiveUser.getToken()))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("Token está valido!"));
-    }
 }

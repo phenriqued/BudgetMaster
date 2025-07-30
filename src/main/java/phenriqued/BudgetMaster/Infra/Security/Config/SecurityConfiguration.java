@@ -1,6 +1,8 @@
 package phenriqued.BudgetMaster.Infra.Security.Config;
 
 
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,10 +18,11 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import phenriqued.BudgetMaster.Infra.Security.Filters.TokenAccessFilter;
 
+@SecurityScheme(name = SecurityConfiguration.SECURITY, type = SecuritySchemeType.HTTP, bearerFormat = "JWT", scheme = "bearer")
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
-
+    public static final String SECURITY = "bearerAuth";
     private final TokenAccessFilter tokenAccessFilter;
 
     public SecurityConfiguration(TokenAccessFilter tokenAccessFilter) {
@@ -37,6 +40,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(
                         authRequest -> {
                             authRequest.requestMatchers("/h2-console/**").permitAll();
+                            authRequest.requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll();
                             authRequest.requestMatchers("/login/**", "account/manager/change-password-to-activate").permitAll();
                             authRequest.requestMatchers("/account/two-factor-auth/resend-code").permitAll();
                             authRequest.anyRequest().authenticated();
