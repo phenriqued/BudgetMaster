@@ -49,12 +49,22 @@ public class SignUpController {
         try {
             return ResponseEntity.ok().body(service.activateUser(code, requestTokenDTO));
         } catch (BusinessRuleException e) {
-            String uriSendNewCode = "http://localhost:8080/account/two-factor-auth/resend-code?code="+code;
+            String uriSendNewCode = "http://localhost:8080/login/resend-code?code="+code;
             HttpHeaders headers = new HttpHeaders();
             headers.setLocation(URI.create(uriSendNewCode));
             return new ResponseEntity<>(headers, HttpStatus.FOUND);
         } catch (BudgetMasterSecurityException e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+
+
+    @GetMapping("/resend-code")
+    public ResponseEntity<String> resendCodeActivationUser(@RequestParam("code") String code){
+        if(service.resendCodeActivateUser(code)){
+            return ResponseEntity.ok().body("Token enviado novamente.");
+        }
+        return ResponseEntity.badRequest().body("Token está valido!");
     }
 }
