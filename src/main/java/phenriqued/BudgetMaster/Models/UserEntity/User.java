@@ -8,10 +8,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import phenriqued.BudgetMaster.DTOs.Login.RegisterUserDTO;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BusinessRuleException;
-import phenriqued.BudgetMaster.Models.Security.Token.SecurityUserToken;
 import phenriqued.BudgetMaster.Models.FamilyEntity.UserFamily;
+import phenriqued.BudgetMaster.Models.IncomeEntity.Income;
+import phenriqued.BudgetMaster.Models.Security.Token.SecurityUserToken;
 import phenriqued.BudgetMaster.Models.Security.TwoFactorAuthentication.TwoFactorAuth;
-import phenriqued.BudgetMaster.Models.Security.TwoFactorAuthentication.Type2FA;
 import phenriqued.BudgetMaster.Models.UserEntity.Role.Role;
 
 import java.time.LocalDate;
@@ -42,6 +42,8 @@ public class User {
     private Boolean isActive;
     private LocalDate createdAt;
     private LocalDateTime deleteAt;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Income> incomes = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<SecurityUserToken> securityUserTokens = new ArrayList<>();
