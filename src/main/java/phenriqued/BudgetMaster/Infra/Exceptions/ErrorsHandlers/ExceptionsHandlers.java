@@ -10,11 +10,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import phenriqued.BudgetMaster.DTOs.ExceptionHandler.DataErrorValidationDTO;
+import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterAccessDeniedException;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BusinessRuleException;
 
-import javax.naming.AuthenticationException;
-import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestControllerAdvice
@@ -48,16 +47,12 @@ public class ExceptionsHandlers {
     }
 
     @ExceptionHandler(BudgetMasterSecurityException.class)
-    public ResponseEntity<String> handlerBudgetMasterSecurityException(BudgetMasterSecurityException e){
+    public ResponseEntity<String> handlerBudgetMasterSecurityException(BudgetMasterSecurityException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
     }
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<String> handlerAuthenticationException(AuthenticationException e){
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
-    }
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<String> handlerAccessDeniedException(AccessDeniedException e){
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+    @ExceptionHandler(BudgetMasterAccessDeniedException.class)
+    public ResponseEntity<String> handlerBudgetMasterAccessDeniedException(BudgetMasterAccessDeniedException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
     }
     @ExceptionHandler(DisabledException.class)
     public ResponseEntity<String> handlerDisabledException(DisabledException e){
