@@ -1,5 +1,6 @@
 package phenriqued.BudgetMaster.Infra.Exceptions.ErrorsHandlers;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import phenriqued.BudgetMaster.DTOs.ExceptionHandler.DataErrorValidationDTO;
-import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterAccessDeniedException;
+import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterUnauthorizedException;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BusinessRuleException;
 
@@ -45,13 +46,18 @@ public class ExceptionsHandlers {
     public ResponseEntity<String> handlerDataIntegrityViolationException(DataIntegrityViolationException e){
         return ResponseEntity.status(HttpStatus.CONFLICT).body("[ERROR] Unique index or primary key violation: The resource you tried to create already exists.");
     }
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<String> handlerEntityNotFoundException(EntityNotFoundException e){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
 
     @ExceptionHandler(BudgetMasterSecurityException.class)
     public ResponseEntity<String> handlerBudgetMasterSecurityException(BudgetMasterSecurityException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
     }
-    @ExceptionHandler(BudgetMasterAccessDeniedException.class)
-    public ResponseEntity<String> handlerBudgetMasterAccessDeniedException(BudgetMasterAccessDeniedException e) {
+    @ExceptionHandler(BudgetMasterUnauthorizedException.class)
+    public ResponseEntity<String> handlerBudgetMasterAccessDeniedException(BudgetMasterUnauthorizedException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
     }
     @ExceptionHandler(DisabledException.class)

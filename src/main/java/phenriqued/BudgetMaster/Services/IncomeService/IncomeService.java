@@ -1,12 +1,12 @@
 package phenriqued.BudgetMaster.Services.IncomeService;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import phenriqued.BudgetMaster.DTOs.Income.RequestNewIncome;
 import phenriqued.BudgetMaster.DTOs.Income.RequestUpdateIncome;
 import phenriqued.BudgetMaster.DTOs.Income.ResponseAllIncomesDTO;
 import phenriqued.BudgetMaster.DTOs.Income.ResponseIncomesDTO;
-import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterAccessDeniedException;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BusinessRuleException;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
 import phenriqued.BudgetMaster.Models.IncomeEntity.Income;
@@ -42,7 +42,6 @@ public class IncomeService {
     public ResponseIncomesDTO getIncomeById(Long id, UserDetailsImpl userDetails) {
         var income = findById(id);
         checkUserAndIncome(income, userDetails.getUser());
-
         return new ResponseIncomesDTO(income);
     }
     public ResponseIncomesDTO getIncomeByDescription(String description, UserDetailsImpl userDetails) {
@@ -54,7 +53,7 @@ public class IncomeService {
     }
 
     public void updateIncome(Long id, RequestUpdateIncome requestIncomeDTO, UserDetailsImpl userDetails) {
-        if (requestIncomeDTO.amount() != null && requestIncomeDTO.amount().trim().isBlank()){
+        if (requestIncomeDTO.amount() != null && !requestIncomeDTO.amount().trim().isBlank()){
             if(!requestIncomeDTO.amount().matches("^\\d+(\\.\\d{1,2})?$"))
                 throw new BusinessRuleException("the value must correspond to one or more positive numeric digits followed by a period and finally up to two numeric digits");
         }
@@ -73,7 +72,7 @@ public class IncomeService {
 
     private void checkUserAndIncome(Income income, User user){
         if(! income.getUser().getId().equals(user.getId()))
-            throw new BudgetMasterAccessDeniedException("[ERROR] Unable to perform!");
+            throw new EntityNotFoundException("Income not found");
     }
     private Income findById(Long id){
         return incomeRepository.findById(id).orElseThrow(() -> new BusinessRuleException("income not found. Check income id"));

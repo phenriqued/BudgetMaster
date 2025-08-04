@@ -9,6 +9,7 @@ import com.auth0.jwt.interfaces.JWTVerifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
+import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterUnauthorizedException;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
 
 import java.time.Instant;
@@ -46,7 +47,7 @@ public class JWTService {
             decodedJWT = verifier.verify(tokenJwt);
             return decodedJWT.getSubject();
         } catch (JWTVerificationException exception){
-            throw new BudgetMasterSecurityException(exception.getMessage());
+            throw new BudgetMasterUnauthorizedException(exception.getMessage());
         }
     }
 
