@@ -35,7 +35,8 @@ public class EmailService {
         } catch(MessagingException | UnsupportedEncodingException | NullPointerException e){
             throw new BusinessRuleException("[INTERNAL ERROR] unable to send email. \n"+e.getMessage());
         }
-        mailSender.send(message);
+        //mailSender.send(message);
+        System.out.println("\nTitle: "+subject+ "\n"+content+"\n");
     }
 
     private void contentValidation(String userEmail, String subject, String content){
