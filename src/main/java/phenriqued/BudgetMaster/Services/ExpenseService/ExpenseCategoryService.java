@@ -8,6 +8,7 @@ import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BusinessRuleException;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
 import phenriqued.BudgetMaster.Models.ExpenseEntity.Category.ExpenseCategory;
 import phenriqued.BudgetMaster.Models.ExpenseEntity.Category.SpendingPriority;
+import phenriqued.BudgetMaster.Models.UserEntity.User;
 import phenriqued.BudgetMaster.Repositories.ExpenseRepository.ExpenseCategoryRepository;
 
 import java.util.List;
@@ -42,5 +43,10 @@ public class ExpenseCategoryService {
         if(! existCategory.isEmpty())
             throw new BusinessRuleException("Unable to create category, the category name already exists.");
         return categoryRepository.save(newCategory);
+    }
+
+    public ExpenseCategory findByName(String name, User user) {
+        return categoryRepository.findByNameAndUserOrPublic(name, user)
+                .orElseThrow(() -> new EntityNotFoundException("Category not found"));
     }
 }

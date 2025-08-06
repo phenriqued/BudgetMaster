@@ -35,5 +35,15 @@ public class ExpenseController {
         return ResponseEntity.created(uri).body(new ResponseExpenseDTO(data));
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<ResponseExpenseDTO> listExpenseById(@RequestParam("id") Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return ResponseEntity.ok(expenseService.getExpenseById(id, userDetails));
+    }
+    @GetMapping("/search/category")
+    public ResponseEntity<ResponseAllExpenseDTO> listAllExpenseByCategory(@PageableDefault(size = 5) Pageable pageable, @RequestParam("category") String category,
+                                                                          @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return ResponseEntity.ok(expenseService.getAllExpenseByCategory(pageable, category, userDetails));
+    }
+
 
 }
