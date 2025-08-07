@@ -6,6 +6,6 @@ public record RequestCreateExpenseCategoryDTO(
         @NotBlank
         String name,
         @NotBlank
-        String spendingPriority) {
+        Long spendingPriorityId) {
 
 }

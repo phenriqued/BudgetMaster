@@ -30,4 +30,13 @@ public class ExpenseCategory {
         this.spendingPriority = spendingPriority;
         this.user = user;
     }
+
+    public void setName(String name) {
+        if(name != null && !name.trim().isBlank())
+            this.name = name;
+    }
+    public void setSpendingPriority(Long id){
+        if(id != null)
+            this.spendingPriority = SpendingPriority.fromId(id).orElseThrow(() -> new IllegalArgumentException("There is no id corresponding to the spending priority"));
+    }
 }
