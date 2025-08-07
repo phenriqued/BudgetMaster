@@ -4,12 +4,13 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import phenriqued.BudgetMaster.DTOs.Expense.RequestCreateExpenseDTO;
 import phenriqued.BudgetMaster.DTOs.Expense.RequestUpdateExpenseDTO;
 import phenriqued.BudgetMaster.DTOs.Expense.ResponseAllExpenseDTO;
 import phenriqued.BudgetMaster.DTOs.Expense.ResponseExpenseDTO;
+import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BusinessRuleException;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
-import phenriqued.BudgetMaster.Models.ExpenseEntity.Category.ExpenseCategory;
 import phenriqued.BudgetMaster.Models.ExpenseEntity.Expense;
 import phenriqued.BudgetMaster.Repositories.ExpenseRepository.ExpenseRepository;
 
@@ -26,10 +27,12 @@ public class ExpenseService {
         this.expenseRepository = expenseRepository;
         this.categoryService = categoryService;
     }
-
+    @Transactional
     public Expense createExpense(RequestCreateExpenseDTO createExpense, UserDetailsImpl userDetails){
         var user = userDetails.getUser();
         var category = categoryService.findByIdAndUser(createExpense.categoryId(), user.getId());
+        if(expenseRepository.existsByDescriptionIgnoreCaseAndUser(createExpense.description().toLowerCase(), user))
+            throw new BusinessRuleException("Unable to create an expense with the same description. Check or update the description.");
 
         return expenseRepository.save(new Expense(createExpense, category, user));
     }
@@ -54,7 +57,7 @@ public class ExpenseService {
                 .map(ResponseExpenseDTO::new)
                 .orElseThrow(() -> new EntityNotFoundException("Expense not found!"));
     }
-
+    @Transactional
     public void updateExpense(Long id, RequestUpdateExpenseDTO updateExpenseDTO, UserDetailsImpl userDetails) {
         var user = userDetails.getUser();
         var expense = expenseRepository.findById(id)
@@ -67,7 +70,7 @@ public class ExpenseService {
         expense.update(updateExpenseDTO);
         expenseRepository.save(expense);
     }
-
+    @Transactional
     public void deleteExpense(Long id, UserDetailsImpl userDetails) {
         var user = userDetails.getUser();
         var expense = expenseRepository.findById(id)

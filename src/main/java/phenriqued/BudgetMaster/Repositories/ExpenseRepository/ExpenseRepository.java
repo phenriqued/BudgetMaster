@@ -11,5 +11,6 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
     Page<Expense> findAllByUser(Pageable pageable, User user);
     Page<Expense> findAllByUserAndExpenseCategory(Pageable pageable, User user, ExpenseCategory expenseCategory);
+    Boolean existsByDescriptionIgnoreCaseAndUser(String description, User user);
 
 }

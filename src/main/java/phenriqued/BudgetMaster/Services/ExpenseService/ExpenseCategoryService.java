@@ -2,6 +2,7 @@ package phenriqued.BudgetMaster.Services.ExpenseService;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import phenriqued.BudgetMaster.DTOs.Expense.RequestCreateExpenseCategoryDTO;
 import phenriqued.BudgetMaster.DTOs.Expense.ResponseCategoryDTO;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BusinessRuleException;
@@ -27,12 +28,11 @@ public class ExpenseCategoryService {
                 filter(cat -> cat.getUser() == null || cat.getUser().getId().equals(userId))
                 .orElseThrow(() -> new EntityNotFoundException("Category not found"));
     }
-
     public List<ResponseCategoryDTO> listAllCategoryByUser(UserDetailsImpl userDetails){
         return categoryRepository.findAllByUser(userDetails.getUser()).stream().map(ResponseCategoryDTO::new).toList();
     }
 
-
+    @Transactional
     public ExpenseCategory createExpenseCategory(RequestCreateExpenseCategoryDTO createCategoryDTO, UserDetailsImpl userDetails) {
         var user = userDetails.getUser();
         var newCategory = new ExpenseCategory(createCategoryDTO.name(), SpendingPriority.valueOf(createCategoryDTO.spendingPriority()), user);
