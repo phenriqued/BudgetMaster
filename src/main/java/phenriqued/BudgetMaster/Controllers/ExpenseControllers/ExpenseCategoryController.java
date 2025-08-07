@@ -49,7 +49,10 @@ public class ExpenseCategoryController {
         return ResponseEntity.noContent().build();
     }
 
-
-
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteExpenseCategory(@PathVariable("id") Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        categoryService.deleteCategory(id, userDetails);
+        return ResponseEntity.noContent().build();
+    }
 
 }

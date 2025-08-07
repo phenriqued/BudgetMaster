@@ -14,7 +14,10 @@ public interface ExpenseCategoryRepository extends JpaRepository<ExpenseCategory
     List<ExpenseCategory> findAllByUser(User user);
 
     @Query("SELECT c FROM ExpenseCategory c WHERE c.name = ?1 AND (c.user IS NULL OR c.user = ?2)")
-    Optional<ExpenseCategory>  findByNameAndUserOrPublic(String name, User user);
+    Optional<ExpenseCategory> findByNameAndUserOrPublic(String name, User user);
+
+    @Query("SELECT c FROM ExpenseCategory c WHERE c.id = ?1 AND c.user IS NOT NULL ")
+    Optional<ExpenseCategory> findByIdAndUserNotNull(Long id);
 
 //    @Query()
 //    Boolean existsByNameAndUser(String name, User user);

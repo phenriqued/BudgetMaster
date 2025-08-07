@@ -66,5 +66,12 @@ public class ExpenseCategoryService {
         category.setSpendingPriority(updateCategoryDTO.spendingPriorityId());
         categoryRepository.save(category);
     }
+    @Transactional
+    public void deleteCategory(Long id, UserDetailsImpl userDetails) {
+        var category = categoryRepository.findByIdAndUserNotNull(id)
+                .filter(cat -> cat.getUser().getId().equals(userDetails.getUser().getId()))
+                .orElseThrow(() -> new EntityNotFoundException("category not found or unable to delete a global category."));
 
+        categoryRepository.deleteById(category.getId());
+    }
 }
