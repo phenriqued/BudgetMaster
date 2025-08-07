@@ -5,9 +5,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import phenriqued.BudgetMaster.DTOs.Expense.RequestCreateExpenseDTO;
+import phenriqued.BudgetMaster.DTOs.Expense.RequestUpdateExpenseDTO;
 import phenriqued.BudgetMaster.DTOs.Expense.ResponseAllExpenseDTO;
 import phenriqued.BudgetMaster.DTOs.Expense.ResponseExpenseDTO;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
+import phenriqued.BudgetMaster.Models.ExpenseEntity.Category.ExpenseCategory;
 import phenriqued.BudgetMaster.Models.ExpenseEntity.Expense;
 import phenriqued.BudgetMaster.Repositories.ExpenseRepository.ExpenseRepository;
 
@@ -53,7 +55,30 @@ public class ExpenseService {
                 .orElseThrow(() -> new EntityNotFoundException("Expense not found!"));
     }
 
+    public void updateExpense(Long id, RequestUpdateExpenseDTO updateExpenseDTO, UserDetailsImpl userDetails) {
+        var user = userDetails.getUser();
+        var expense = expenseRepository.findById(id)
+                .filter(expenseEntity -> expenseEntity.getUser().getId().equals(user.getId()))
+                .orElseThrow(() -> new EntityNotFoundException("Expense not found!"));
+
+        if(updateExpenseDTO.categoryId() != null)
+            expense.setExpenseCategory(categoryService.findByIdAndUser(updateExpenseDTO.categoryId(), user.getId()));
+
+        expense.update(updateExpenseDTO);
+        expenseRepository.save(expense);
+    }
+
+    public void deleteExpense(Long id, UserDetailsImpl userDetails) {
+        var user = userDetails.getUser();
+        var expense = expenseRepository.findById(id)
+                .filter(expenseEntity -> expenseEntity.getUser().getId().equals(user.getId()))
+                .orElseThrow(() -> new EntityNotFoundException("Expense not found!"));
+        expenseRepository.deleteById(expense.getId());
+    }
+
     private BigDecimal calculateTotal(Page<Expense> expenses){
         return expenses.stream().map(Expense::getAmount).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
     }
+
+
 }

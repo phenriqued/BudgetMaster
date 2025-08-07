@@ -7,6 +7,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import phenriqued.BudgetMaster.DTOs.Expense.RequestCreateExpenseDTO;
+import phenriqued.BudgetMaster.DTOs.Expense.RequestUpdateExpenseDTO;
 import phenriqued.BudgetMaster.DTOs.Expense.ResponseAllExpenseDTO;
 import phenriqued.BudgetMaster.DTOs.Expense.ResponseExpenseDTO;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
@@ -44,6 +45,20 @@ public class ExpenseController {
                                                                           @AuthenticationPrincipal UserDetailsImpl userDetails){
         return ResponseEntity.ok(expenseService.getAllExpenseByCategory(pageable, category, userDetails));
     }
+
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<Void> updateExpense(@PathVariable("id") Long id, @RequestBody RequestUpdateExpenseDTO updateExpenseDTO,
+                                              @AuthenticationPrincipal UserDetailsImpl userDetails){
+        expenseService.updateExpense(id, updateExpenseDTO, userDetails);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteExpense(@PathVariable("id") Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        expenseService.deleteExpense(id, userDetails);
+        return ResponseEntity.noContent().build();
+    }
+
 
 
 }
