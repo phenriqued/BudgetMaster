@@ -7,6 +7,8 @@ import java.time.format.DateTimeFormatter;
 
 public record ResponseIncomesDTO(
         @NotBlank
+        Long id,
+        @NotBlank
         String description,
         @NotBlank
         String amount,
@@ -14,7 +16,7 @@ public record ResponseIncomesDTO(
         String entryDate
 ) {
     public ResponseIncomesDTO(Income entity){
-        this( entity.getDescription(),entity.getAmount().toString(),
+        this(entity.getId(), entity.getDescription(),entity.getAmount().toString(),
                 entity.getEntryDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
     }
 }

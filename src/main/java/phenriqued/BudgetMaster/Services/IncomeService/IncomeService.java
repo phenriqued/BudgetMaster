@@ -3,6 +3,7 @@ package phenriqued.BudgetMaster.Services.IncomeService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import phenriqued.BudgetMaster.DTOs.Income.RequestNewIncome;
 import phenriqued.BudgetMaster.DTOs.Income.RequestUpdateIncome;
 import phenriqued.BudgetMaster.DTOs.Income.ResponseAllIncomesDTO;
@@ -23,7 +24,7 @@ public class IncomeService {
     public IncomeService(IncomeRepository incomeRepository) {
         this.incomeRepository = incomeRepository;
     }
-
+    @Transactional
     public Income createIncome(RequestNewIncome requestIncomeDTO, UserDetailsImpl userDetails) {
         var user = userDetails.getUser();
         if (incomeRepository.existsByDescriptionAndUser(requestIncomeDTO.description(), user))
@@ -51,7 +52,7 @@ public class IncomeService {
         checkUserAndIncome(income, user);
         return new ResponseIncomesDTO(income);
     }
-
+    @Transactional
     public void updateIncome(Long id, RequestUpdateIncome requestIncomeDTO, UserDetailsImpl userDetails) {
         if (requestIncomeDTO.amount() != null && !requestIncomeDTO.amount().trim().isBlank()){
             if(!requestIncomeDTO.amount().matches("^\\d+(\\.\\d{1,2})?$"))
@@ -63,7 +64,7 @@ public class IncomeService {
         income.updateIncome(requestIncomeDTO);
         incomeRepository.save(income);
     }
-
+    @Transactional
     public void deleteIncome(Long id, UserDetailsImpl userDetails) {
         var income = findById(id);
         checkUserAndIncome(income, userDetails.getUser());

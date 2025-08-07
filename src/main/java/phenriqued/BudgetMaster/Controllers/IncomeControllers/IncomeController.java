@@ -47,10 +47,10 @@ public class IncomeController {
             "deve corresponder a um ou mais dígitos numéricos positivos seguidos de um ponto e, finalmente, até dois dígitos numéricos ")
     @ApiResponse(responseCode = "401", description = "Não autenticado.")
     @PostMapping
-    public ResponseEntity<RequestNewIncome> createIncome(@RequestBody @Valid RequestNewIncome requestIncomeDTO, @AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseEntity<ResponseIncomesDTO> createIncome(@RequestBody @Valid RequestNewIncome requestIncomeDTO, @AuthenticationPrincipal UserDetailsImpl userDetails){
         var data = incomeService.createIncome(requestIncomeDTO, userDetails);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().path("{id}").buildAndExpand(data.getId()).toUri();
-        return ResponseEntity.created(uri).body(new RequestNewIncome(data));
+        return ResponseEntity.created(uri).body(new ResponseIncomesDTO(data));
     }
 
     @Operation(summary = "Lista uma renda buscada pelo ID", description = "responsável por listar uma renda buscada pelo ID")

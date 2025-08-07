@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -68,7 +69,10 @@ public class ExceptionsHandlers {
     public ResponseEntity<String> handlerBadCredentialsException(BadCredentialsException e){
         return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
     }
-
+    @ExceptionHandler(InternalAuthenticationServiceException.class)
+    public ResponseEntity<String> handlerInternalAuthenticationServiceException(InternalAuthenticationServiceException e){
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
 
 
 }
