@@ -1,12 +1,13 @@
 package phenriqued.BudgetMaster.DTOs.Income;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import phenriqued.BudgetMaster.Models.IncomeEntity.Income;
 
 import java.time.format.DateTimeFormatter;
 
 public record ResponseIncomesDTO(
-        @NotBlank
+        @NotNull
         Long id,
         @NotBlank
         String description,

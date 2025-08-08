@@ -1,6 +1,7 @@
 package phenriqued.BudgetMaster.Services.ExpenseService;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,10 +29,10 @@ public class ExpenseService {
         this.categoryService = categoryService;
     }
     @Transactional
-    public Expense createExpense(RequestCreateExpenseDTO createExpense, UserDetailsImpl userDetails){
+    public Expense createExpense(@Valid RequestCreateExpenseDTO createExpense, UserDetailsImpl userDetails){
         var user = userDetails.getUser();
         var category = categoryService.findByIdAndUser(createExpense.categoryId(), user.getId());
-        if(expenseRepository.existsByDescriptionIgnoreCaseAndUser(createExpense.description().toLowerCase(), user))
+        if(expenseRepository.existsByDescriptionIgnoreCaseAndUser(createExpense.description(), user))
             throw new BusinessRuleException("Unable to create an expense with the same description. Check or update the description.");
 
         return expenseRepository.save(new Expense(createExpense, category, user));

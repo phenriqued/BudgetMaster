@@ -1,6 +1,7 @@
 package phenriqued.BudgetMaster.DTOs.Expense;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 public record RequestCreateExpenseDTO(
@@ -10,7 +11,7 @@ public record RequestCreateExpenseDTO(
         @Pattern(regexp = "^\\d+(\\.\\d{1,2})?$",
                 message = "the value must correspond to one or more positive numeric digits followed by a period and finally up to two numeric digits")
         String amount,
-        @NotBlank
+        @NotNull
         Long categoryId
 ) {
 }

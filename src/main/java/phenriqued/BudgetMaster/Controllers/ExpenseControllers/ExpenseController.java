@@ -1,5 +1,6 @@
 package phenriqued.BudgetMaster.Controllers.ExpenseControllers;
 
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,7 @@ public class ExpenseController {
         return ResponseEntity.ok(expenseService.getAllExpense(pageable, userDetails));
     }
     @PostMapping
-    public ResponseEntity<ResponseExpenseDTO> createExpense(@RequestBody RequestCreateExpenseDTO createExpenseDTO, @AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseEntity<ResponseExpenseDTO> createExpense(@RequestBody @Valid RequestCreateExpenseDTO createExpenseDTO, @AuthenticationPrincipal UserDetailsImpl userDetails){
         var data = expenseService.createExpense(createExpenseDTO, userDetails);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().path("{id}").buildAndExpand(data.getId()).toUri();
         return ResponseEntity.created(uri).body(new ResponseExpenseDTO(data));

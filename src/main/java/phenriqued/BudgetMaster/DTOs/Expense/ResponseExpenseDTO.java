@@ -1,12 +1,15 @@
 package phenriqued.BudgetMaster.DTOs.Expense;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import phenriqued.BudgetMaster.Models.ExpenseEntity.Expense;
 
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 
 public record ResponseExpenseDTO(
+        @NotNull
+        Long id,
         @NotBlank
         String description,
         @NotBlank
@@ -17,7 +20,7 @@ public record ResponseExpenseDTO(
         String entryDate
 ) {
     public ResponseExpenseDTO(Expense entity){
-        this(entity.getDescription(), entity.getAmount(), entity.getExpenseCategory().getName(),
+        this(entity.getId(), entity.getDescription(), entity.getAmount(), entity.getExpenseCategory().getName(),
                 entity.getEntryDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
     }
 }
