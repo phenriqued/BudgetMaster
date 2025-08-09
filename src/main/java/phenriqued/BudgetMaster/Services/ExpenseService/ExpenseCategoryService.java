@@ -50,10 +50,9 @@ public class ExpenseCategoryService {
 
         var newCategory = new ExpenseCategory(createCategoryDTO.name(), spendingPriority, user);
 
-        var existCategory = categoryRepository.findAllByUser(user).stream().
-                filter(cat -> cat.getName().equalsIgnoreCase(newCategory.getName())).toList();
+        var existCategory = categoryRepository.existsByNameAndUser(newCategory.getName(), user);
 
-        if(! existCategory.isEmpty())
+        if(existCategory)
             throw new BusinessRuleException("Unable to create category, the category name already exists.");
 
         return categoryRepository.save(newCategory);
