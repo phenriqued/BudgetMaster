@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.test.util.ReflectionTestUtils;
 import phenriqued.BudgetMaster.DTOs.Income.RequestNewIncome;
 import phenriqued.BudgetMaster.DTOs.Income.RequestUpdateIncome;
 import phenriqued.BudgetMaster.DTOs.Login.RegisterUserDTO;
@@ -81,7 +82,7 @@ class IncomeServiceTest {
         var income = new Income(new RequestNewIncome("salary", "2.000"), user);
 
         when(incomeRepository.findById(any(Long.class))).thenReturn(Optional.of(income));
-        user.setId(1L);
+        ReflectionTestUtils.setField(user, "id", 1L);
         incomeService.updateIncome(1L, new RequestUpdateIncome("investimento em renda variavel", "500"), new UserDetailsImpl(user));
 
         assertEquals("investimento em renda variavel", income.getDescription());
@@ -124,7 +125,7 @@ class IncomeServiceTest {
         var income = new Income(new RequestNewIncome("salary", "2000"), user);
 
         when(incomeRepository.findById(any(Long.class))).thenReturn(Optional.of(income));
-        user.setId(1L);
+        ReflectionTestUtils.setField(user, "id", 1L);
         incomeService.deleteIncome(1L, new UserDetailsImpl(user));
 
         verify(incomeRepository, times(1)).deleteById(any(Long.class));
@@ -149,8 +150,8 @@ class IncomeServiceTest {
         var income = new Income(new RequestNewIncome("salary", "2000"), user);
 
         when(incomeRepository.findById(any(Long.class))).thenReturn(Optional.of(income));
-        user.setId(1L);
-        userTwo.setId(2L);
+        ReflectionTestUtils.setField(user, "id", 1L);
+        ReflectionTestUtils.setField(userTwo, "id", 2L);
 
         Exception exception = assertThrows(EntityNotFoundException.class,
                 () -> incomeService.deleteIncome(1L, new UserDetailsImpl(userTwo)));

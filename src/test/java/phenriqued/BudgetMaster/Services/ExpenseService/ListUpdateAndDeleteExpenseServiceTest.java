@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.test.util.ReflectionTestUtils;
 import phenriqued.BudgetMaster.DTOs.Expense.RequestCreateExpenseDTO;
 import phenriqued.BudgetMaster.DTOs.Expense.RequestUpdateExpenseDTO;
 import phenriqued.BudgetMaster.DTOs.Login.RegisterUserDTO;
@@ -61,7 +62,7 @@ class ListUpdateAndDeleteExpenseServiceTest {
         var category = new ExpenseCategory("teste", SpendingPriority.ESSENTIAL, null);
         var expense = new Expense(new RequestCreateExpenseDTO("spend","100", 1L), category, user);
 
-        user.setId(1L);
+        ReflectionTestUtils.setField(user, "id", 1L);
         var updateDTO = new RequestUpdateExpenseDTO("Salary", "300", 1L);
         when(expenseRepository.findById(any(Long.class))).thenReturn(Optional.of(expense));
         when(categoryService.findByIdAndUser(updateDTO.categoryId(), user.getId())).thenReturn(category);
@@ -89,7 +90,7 @@ class ListUpdateAndDeleteExpenseServiceTest {
         var category = new ExpenseCategory("teste", SpendingPriority.ESSENTIAL, null);
         var expense = new Expense(new RequestCreateExpenseDTO("spend","100", 1L), category, user);
 
-        user.setId(1L);
+        ReflectionTestUtils.setField(user, "id", 1L);
         var updateDTO = new RequestUpdateExpenseDTO("Salary", "300", 1L);
         when(expenseRepository.findById(any(Long.class))).thenReturn(Optional.of(expense));
         when(categoryService.findByIdAndUser(updateDTO.categoryId(), user.getId())).thenThrow(new EntityNotFoundException("Category not found!"));
@@ -105,8 +106,8 @@ class ListUpdateAndDeleteExpenseServiceTest {
     void deleteExpense() {
         var category = new ExpenseCategory("teste", SpendingPriority.ESSENTIAL, null);
         var expense = new Expense(new RequestCreateExpenseDTO("spend","100", 1L), category, user);
-        user.setId(1L);
-        expense.setId(1L);
+        ReflectionTestUtils.setField(user, "id", 1L);
+        ReflectionTestUtils.setField(expense, "id", 1L);
 
         when(expenseRepository.findById(any(Long.class))).thenReturn(Optional.of(expense));
 
