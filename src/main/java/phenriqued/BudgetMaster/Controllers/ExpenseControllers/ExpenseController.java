@@ -62,11 +62,22 @@ public class ExpenseController {
     @Operation(summary = "Retorna uma lista de despesas por categoria", description = "responsável por retornar uma lista de despesas por categoria")
     @ApiResponse(responseCode = "200", description = "retorna uma lista de despesas correspondente ao usuário e a categoria")
     @ApiResponse(responseCode = "404", description = "Caso não exista uma despesa corresponde a categoria de busca ou pertencente ao usuário")
+    @ApiResponse(responseCode = "401", description = "Não autenticado.")
     @GetMapping("/search/category")
     public ResponseEntity<ResponseAllExpenseDTO> listAllExpenseByCategory(@PageableDefault(size = 5) Pageable pageable, @RequestParam("category") String category,
                                                                           @AuthenticationPrincipal UserDetailsImpl userDetails){
         return ResponseEntity.ok(expenseService.getAllExpenseByCategory(pageable, category, userDetails));
     }
+    @Operation(summary = "Retorna uma lista de despesas por prioridade de gastos", description = "responsável por retornar uma lista de despesas por prioridade de gasto")
+    @ApiResponse(responseCode = "200", description = "retorna uma lista de despesas correspondente ao usuário e a prioridade de gasto")
+    @ApiResponse(responseCode = "404", description = "Caso não exista uma despesa corresponde a prioridade de gasto ou pertencente ao usuário")
+    @ApiResponse(responseCode = "401", description = "Não autenticado.")
+    @GetMapping("/search/spending-priority/{id}")
+    public ResponseEntity<ResponseAllExpenseDTO> listAllExpenseBySpendingPriority(@PageableDefault(size = 10) Pageable pageable, @PathVariable("id") Long id,
+                                                                          @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return ResponseEntity.ok(expenseService.getAllExpenseBySpendingPriority(pageable, id, userDetails));
+    }
+
     @Operation(summary = "Atualiza uma despesa", description = "responsável por atualizar uma despesa, seja somente a descrição quanto somente o montante")
     @ApiResponse(responseCode = "204", description = "atualização feita com sucesso.")
     @ApiResponse(responseCode = "404", description = "Despesa não encontradas ou não pertence ao usuário.")
@@ -87,7 +98,5 @@ public class ExpenseController {
         expenseService.deleteExpense(id, userDetails);
         return ResponseEntity.noContent().build();
     }
-
-
 
 }

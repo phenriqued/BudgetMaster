@@ -12,6 +12,7 @@ import phenriqued.BudgetMaster.DTOs.Expense.ResponseAllExpenseDTO;
 import phenriqued.BudgetMaster.DTOs.Expense.ResponseExpenseDTO;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BusinessRuleException;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
+import phenriqued.BudgetMaster.Models.ExpenseEntity.Category.SpendingPriority;
 import phenriqued.BudgetMaster.Models.ExpenseEntity.Expense;
 import phenriqued.BudgetMaster.Repositories.ExpenseRepository.ExpenseRepository;
 
@@ -52,6 +53,16 @@ public class ExpenseService {
         var total = calculateTotal(expensesByUserAndCategory);
         return new ResponseAllExpenseDTO(expensesByUserAndCategory.stream().map(ResponseExpenseDTO::new).toList(), total);
     }
+    public ResponseAllExpenseDTO getAllExpenseBySpendingPriority(Pageable pageable, Long id, UserDetailsImpl userDetails) {
+        var user = userDetails.getUser();
+        var spendingPriority = SpendingPriority.fromId(id)
+                .orElseThrow(() ->new BusinessRuleException("There is no id corresponding to the spending priority"));
+        var expensesByUser = expenseRepository.findAllByUser(pageable, user);
+        var expensesBySpendingPriority = expensesByUser.stream()
+                .filter(expense -> expense.getExpenseCategory().getSpendingPriority().equals(spendingPriority)).toList();
+        var total = expensesBySpendingPriority.stream().map(Expense::getAmount).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+        return new ResponseAllExpenseDTO(expensesBySpendingPriority.stream().map(ResponseExpenseDTO::new).toList(), total);
+    }
     public ResponseExpenseDTO getExpenseById(Long id, UserDetailsImpl userDetails){
         return expenseRepository.findById(id)
                 .filter(expense -> expense.getUser().getId().equals(userDetails.getUser().getId()))
@@ -83,6 +94,5 @@ public class ExpenseService {
     private BigDecimal calculateTotal(Page<Expense> expenses){
         return expenses.stream().map(Expense::getAmount).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
     }
-
 
 }
