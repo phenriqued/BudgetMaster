@@ -31,9 +31,6 @@ public class ReserveService {
     public ResponseEmergencyReserveDTO getTotalEmergencyReserve(UserDetailsImpl userDetails) {
         var user = userDetails.getUser();
         var idealReserve = getIdealReserve(user);
-        if(idealReserve.equals(BigDecimal.ZERO)){
-            throw new BusinessRuleException("No expenses and/or income registered");
-        }
         return new ResponseEmergencyReserveDTO(idealReserve, "BRL", LocalDate.now());
     }
 
@@ -43,9 +40,7 @@ public class ReserveService {
         BigDecimal allIncomes = getAllIncomes(user);
         BigDecimal total = getIdealReserve(user);
         BigDecimal value = allIncomes.subtract(expenseEssential);
-        if(total.equals(BigDecimal.ZERO)){
-            throw new BusinessRuleException("It is not possible to generate progress for the management of the emergency reserve, when there are no expenses generated");
-        }
+
         String progress = total.divide(value, 0, RoundingMode.HALF_UP).toString();
         LocalDate estimatedCompletionDate = LocalDate.now().plusMonths(Long.parseLong(progress));
         return new ResponseEmergencyReserveProgressDTO(value, progress, estimatedCompletionDate);
@@ -64,7 +59,7 @@ public class ReserveService {
 
     private BigDecimal getIdealReserve(User user){
         BigDecimal amount = expenseRepository.findAllByUser(user).stream().map(Expense::getAmount)
-                .reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+                .reduce(BigDecimal::add).orElseThrow(()-> new BusinessRuleException("No expenses and/or income registered"));
 
         return amount.multiply(new BigDecimal(6));
     }
