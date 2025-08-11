@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import phenriqued.BudgetMaster.Models.IncomeEntity.Income;
 import phenriqued.BudgetMaster.Models.UserEntity.User;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface IncomeRepository extends JpaRepository<Income, Long> {
@@ -14,6 +15,7 @@ public interface IncomeRepository extends JpaRepository<Income, Long> {
     Boolean existsByDescriptionAndUser(String description, User user);
 
     Page<Income> findAllByUser(Pageable pageable, User user);
+    List<Income> findAllByUser(User user);
 
     @Query("SELECT income FROM Income income WHERE income.description = ?1 AND income.user = ?2")
     Optional<Income> findByDescriptionAndUser(String description, User user);
