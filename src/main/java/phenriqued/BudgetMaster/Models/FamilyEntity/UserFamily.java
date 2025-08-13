@@ -29,4 +29,10 @@ public class UserFamily {
     private RoleFamily roleFamily;
     private LocalDate joinedAt;
 
+    public UserFamily(User user, Family family, RoleFamily roleFamily) {
+        this.user = user;
+        this.family = family;
+        this.roleFamily = roleFamily;
+        this.joinedAt = LocalDate.now();
+    }
 }

@@ -37,7 +37,7 @@ public class User {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REFRESH ,fetch = FetchType.EAGER)
     private List<UserFamily> family = new ArrayList<>();
     private Boolean isActive;
     private LocalDate createdAt;
