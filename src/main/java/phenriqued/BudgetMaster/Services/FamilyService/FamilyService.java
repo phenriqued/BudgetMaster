@@ -18,8 +18,9 @@ import phenriqued.BudgetMaster.Repositories.FamilyRepositories.UserFamilyReposit
 import phenriqued.BudgetMaster.Services.Security.TokensService.TokenService;
 import phenriqued.BudgetMaster.Services.UserServices.UserService;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class FamilyService {
@@ -49,30 +50,31 @@ public class FamilyService {
         UserFamily userFamily = userFamilyRepository.save(new UserFamily(user, family, RoleFamily.OWNER));
         family.addUserFamily(userFamily);
 
-        var usersNotFound = invitedFamilyMembers(createFamilyDTO.members(), family, userFamily);
+        var invitesNotSent = invitedFamilyMembers(createFamilyDTO.members(), family, userFamily);
 
         familyRepository.flush();
         var userFamilyDTO = new ResponseUserFamilyDTO(userFamily);
-        return new ResponseCreatedFamilyDTO(family, List.of(userFamilyDTO), usersNotFound);
+        return new ResponseCreatedFamilyDTO(family, List.of(userFamilyDTO), invitesNotSent);
     }
 
-    private List<String> invitedFamilyMembers(List<FamilyMemberDTO> memberList, Family family, UserFamily userOwner){
-        List<String> invitesNotSent = new ArrayList<>();
+    private Map<String, String> invitedFamilyMembers(List<FamilyMemberDTO> memberList, Family family, UserFamily userOwner){
+        Map<String, String> invitesNotSent = new HashMap<>();
         for (FamilyMemberDTO member : memberList){
             try{
                 var role = RoleFamily.fromId(member.role()).orElseThrow(() -> new EntityNotFoundException("Role Family Id not found!"));
                 var userInvited = userService.findUserByEmail(member.email());
                 familyEmailService.invitedMember(userInvited, family, role, userOwner);
-            }catch (UsernameNotFoundException | EntityNotFoundException e){
-                invitesNotSent.add(member.email());
+            }catch (UsernameNotFoundException e){
+                invitesNotSent.put(member.email(), "Non-existent email or username, check email!");
+            }catch (EntityNotFoundException e){
+                invitesNotSent.put("Role Family: "+member.role(), e.getMessage());
             }
         }
-        if (invitesNotSent.isEmpty()) invitesNotSent.add("invitations were sent to all members");
-        //alterar para map
+        if (invitesNotSent.isEmpty()) invitesNotSent.put("Invitations sent successfully", "invitations were sent to all members!");
         return invitesNotSent;
     }
 
-    public void addUserFamily(Long familyCode, Long roleFamily,String userCode) {
+    public void acceptFamilyInvitation(Long familyCode, Long roleFamily, String userCode) {
         var user = tokenService.redeemSecurityUserToken(userCode);
         Family family = familyRepository.findById(familyCode).orElseThrow(() -> new EntityNotFoundException("Family id not found!"));
         RoleFamily role = RoleFamily.fromId(roleFamily).orElseThrow(() -> new EntityNotFoundException("Role Family id not found!"));
