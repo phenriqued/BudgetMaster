@@ -47,9 +47,11 @@ public class TokenService {
     @Transactional
     public User redeemSecurityUserToken(String code) throws BudgetMasterSecurityException{
         var token = findByToken(code);
+        var user = token.getUser();
         securityUserTokenService.tokenValidation(code);
-        deleteToken(token);
-        return token.getUser();
+        user.getSecurityUserTokens().remove(token);
+        tokenRepository.delete(token);
+        return user;
     }
 
     public SecurityUserToken findByToken(String token){

@@ -45,15 +45,12 @@ public class SignUpService {
 
     @Transactional
     public TokenDTO activateUser(String code, RequestTokenDTO requestTokenDTO) {
-        var token = tokenService.findByToken(code);
-        tokenService.verifySecurityUserToken(token.getToken());
-        var user = token.getUser();
+        var user = tokenService.redeemSecurityUserToken(code);
         user.setIsActive();
         userRepository.save(user);
-        tokenService.deleteToken(token);
         userEmailService.sendActivateAccount(user);
-        return tokenService.generatedRefreshTokenAndTokenJWT(new UserDetailsImpl(user), TokenType.valueOf(requestTokenDTO.tokenType().toUpperCase()),
-                                                requestTokenDTO.identifier());
+        return tokenService.generatedRefreshTokenAndTokenJWT(new UserDetailsImpl(user),
+                TokenType.valueOf(requestTokenDTO.tokenType().toUpperCase()), requestTokenDTO.identifier());
     }
 
     public Boolean resendCodeActivateUser(String code){

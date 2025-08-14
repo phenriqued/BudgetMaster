@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -64,11 +64,11 @@ public class SignUpActivationUserControllerTest {
         //arrange
         var user = userRepository.findByEmail(userDataTeste.email()).orElseThrow(EntityNotFoundException::new);
         var tokenActiveUser = tokenRepository.findByIdentifierAndUser("internal-activation-user-"+user.getId(), user)
-                .orElseThrow().getToken();
+                .orElseThrow();
         String json = new ObjectMapper().writeValueAsString(new RequestTokenDTO("WEB", "teste"));
 
         //action and assert
-        mockMvc.perform(put("/login/activate-user?code="+tokenActiveUser)
+        mockMvc.perform(put("/login/activate-user?code="+tokenActiveUser.getToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isOk())
@@ -77,7 +77,8 @@ public class SignUpActivationUserControllerTest {
 
         var userActivated = userRepository.findByEmail(userDataTeste.email()).orElseThrow();
         assertTrue(userActivated.getIsActive());
-        verify(emailService, times(2)).sendMail(any(), any(), any());
+        verify(emailService, times(2)).sendMail(eq(user.getEmail()), any(), any());
+        assertFalse(tokenRepository.existsById(tokenActiveUser.getId()));
     }
 
     @Test
