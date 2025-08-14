@@ -33,15 +33,16 @@ public class FamilyController {
         }
     }
 
-//    @PostMapping("/add")
-//    public ResponseEntity<?> addFamilyMembers(@RequestParam("familyCode") Long familyCode, @RequestParam("user") Long userCode){
-//        try{
-//            service.addFamily(userDetails, addFamilyDTO);
-//            return ResponseEntity.noContent().build();
-//        }catch (BusinessRuleException e ){
-//            return ResponseEntity.badRequest().body(e.getMessage());
-//        }
-//    }
+    @PostMapping("/add/user")
+    public ResponseEntity<?> addFamilyMembers(@RequestParam("user") String userCode,@RequestParam("familyCode") Long familyCode,
+                                              @RequestParam(value = "roleId") Long roleFamily){
+        try{
+            service.addUserFamily(familyCode, roleFamily, userCode);
+            return ResponseEntity.noContent().build();
+        }catch (BusinessRuleException e ){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
 
 }

@@ -36,7 +36,7 @@ public class FamilyEmailService {
                         + "Aproveite para organizar suas finanças com o Budget Master!<br><br>"
                         + "Atenciosamente,<br>"
                         + "Equipe Budget Master"
-        ,user.getName() , URL_SITE+"/family/add?familyCode="+family.getId()+"&user="+code);
+        ,user.getName() , URL_SITE+"/family/add/user?user="+code+"&familyCode="+family.getId()+"&roleId="+roleFamily.id);
 
         emailService.sendMail(user.getEmail(), subject, content);
     }

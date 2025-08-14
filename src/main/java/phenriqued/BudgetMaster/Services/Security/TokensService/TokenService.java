@@ -44,6 +44,14 @@ public class TokenService {
         securityUserTokenService.tokenValidation(code);
     }
 
+    @Transactional
+    public User redeemSecurityUserToken(String code) throws BudgetMasterSecurityException{
+        var token = findByToken(code);
+        securityUserTokenService.tokenValidation(code);
+        deleteToken(token);
+        return token.getUser();
+    }
+
     public SecurityUserToken findByToken(String token){
         return tokenRepository.findByToken(token)
                 .orElseThrow(() -> new BudgetMasterSecurityException("[ERROR] invalid code or could not find token!"));
