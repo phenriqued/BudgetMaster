@@ -5,24 +5,23 @@ import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BusinessRuleException;
 import phenriqued.BudgetMaster.Models.FamilyEntity.Family;
 import phenriqued.BudgetMaster.Models.FamilyEntity.RoleFamily;
 import phenriqued.BudgetMaster.Models.FamilyEntity.UserFamily;
-import phenriqued.BudgetMaster.Models.Security.Token.TokenType;
 import phenriqued.BudgetMaster.Models.UserEntity.User;
-import phenriqued.BudgetMaster.Services.Security.SecurityUserTokensService.SecurityUserTokenService;
+import phenriqued.BudgetMaster.Services.Security.TokensService.TokenService;
 
 @Service
 public class FamilyEmailService {
 
     private final EmailService emailService;
-    private final SecurityUserTokenService tokenService;
+    private final TokenService tokenService;
     private static final String URL_SITE = "http://localhost:8080";
 
-    public FamilyEmailService(EmailService emailService, SecurityUserTokenService tokenService) {
+    public FamilyEmailService(EmailService emailService, TokenService tokenService) {
         this.emailService = emailService;
         this.tokenService = tokenService;
     }
 
     public void invitedMember(User user, Family family, RoleFamily roleFamily, UserFamily userOwner){
-        String code = tokenService.generatedSecurityUserToken(user, "family-id-"+family.getId()+"-user-"+user.getId(), 4320, TokenType.OPEN_ID);
+        String code = tokenService.generatedTokenJwtAtFamily(user, family, roleFamily.id);
         String subject = userOwner.getUser().getName()+" está de convidando para fazer parte da "+ family.getName();
         String content = generateEmailContent(
                 "Olá " + user.getName() + ",<br><br>"
@@ -36,7 +35,7 @@ public class FamilyEmailService {
                         + "Aproveite para organizar suas finanças com o Budget Master!<br><br>"
                         + "Atenciosamente,<br>"
                         + "Equipe Budget Master"
-        ,user.getName() , URL_SITE+"/family/add/user?user="+code+"&familyCode="+family.getId()+"&roleId="+roleFamily.id);
+        ,user.getName() , URL_SITE+"/family/invitations/accept?code="+code);
 
         emailService.sendMail(user.getEmail(), subject, content);
     }

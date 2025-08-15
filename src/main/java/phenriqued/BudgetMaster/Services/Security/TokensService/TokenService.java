@@ -1,6 +1,7 @@
 package phenriqued.BudgetMaster.Services.Security.TokensService;
 
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,6 +9,7 @@ import phenriqued.BudgetMaster.DTOs.Security.Token.TokenDTO;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
 import phenriqued.BudgetMaster.Infra.Security.Service.JWTService;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
+import phenriqued.BudgetMaster.Models.FamilyEntity.Family;
 import phenriqued.BudgetMaster.Models.Security.Token.SecurityUserToken;
 import phenriqued.BudgetMaster.Models.Security.Token.TokenType;
 import phenriqued.BudgetMaster.Models.UserEntity.User;
@@ -32,8 +34,11 @@ public class TokenService {
     }
 
     public String generatedSecurityUserToken2FA(User user){
-        return
-            securityUserTokenService.generatedSecurityUserToken2FA(user, TokenType.OPEN_ID, 5);
+        return securityUserTokenService.generatedSecurityUserToken2FA(user, TokenType.OPEN_ID, 5);
+    }
+
+    public String generatedTokenJwtAtFamily(User user, Family family, Long roleId){
+        return jwtService.generatedJwtAtFamily(user, family, roleId);
     }
 
     public String validationTokenJWT(String tokenJwt){
@@ -42,6 +47,10 @@ public class TokenService {
 
     public void verifySecurityUserToken(String code) throws BudgetMasterSecurityException{
         securityUserTokenService.tokenValidation(code);
+    }
+
+    public DecodedJWT validationTokenJwtAtFamily(String token){
+        return jwtService.tokenJWTFamilyValidation(token);
     }
 
     @Transactional

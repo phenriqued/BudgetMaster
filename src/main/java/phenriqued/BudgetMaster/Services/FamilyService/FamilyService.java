@@ -57,32 +57,39 @@ public class FamilyService {
         return new ResponseCreatedFamilyDTO(family, List.of(userFamilyDTO), invitesNotSent);
     }
 
+    public void acceptFamilyInvitation(String tokenFamily) {
+        var decodedToken = tokenService.validationTokenJwtAtFamily(tokenFamily);
+        var user = userService.findUserByEmail(decodedToken.getSubject());
+
+        Family family = familyRepository.findById(decodedToken.getClaim("familyId").asLong())
+                .orElseThrow(() -> new EntityNotFoundException("Family id not found!"));
+        RoleFamily role = RoleFamily.fromId(decodedToken.getClaim("roleId").asLong())
+                .orElseThrow(() -> new EntityNotFoundException("Role Family id not found!"));
+
+        if (userFamilyRepository.existsByUserAndFamily(user, family)) throw new BusinessRuleException("the user is already part of the "+family.getName());
+
+        UserFamily userFamily = userFamilyRepository.save(new UserFamily(user, family, role));
+        user.getFamily().add(userFamily);
+        family.addUserFamily(userFamily);
+        familyRepository.flush();
+    }
+
     private Map<String, String> invitedFamilyMembers(List<FamilyMemberDTO> memberList, Family family, UserFamily userOwner){
         Map<String, String> invitesNotSent = new HashMap<>();
         for (FamilyMemberDTO member : memberList){
             try{
                 var role = RoleFamily.fromId(member.role()).orElseThrow(() -> new EntityNotFoundException("Role Family Id not found!"));
+                if(role.equals(RoleFamily.OWNER)) throw new BusinessRuleException("Unable to add a member as OWNER at this time");
                 var userInvited = userService.findUserByEmail(member.email());
                 familyEmailService.invitedMember(userInvited, family, role, userOwner);
             }catch (UsernameNotFoundException e){
                 invitesNotSent.put(member.email(), "Non-existent email or username, check email!");
-            }catch (EntityNotFoundException e){
-                invitesNotSent.put("Role Family: "+member.role(), e.getMessage());
+            }catch (BusinessRuleException | EntityNotFoundException e){
+                invitesNotSent.put(member.email(), "Role Family - "+member.role()+" - "+ e.getMessage());
             }
         }
         if (invitesNotSent.isEmpty()) invitesNotSent.put("Invitations sent successfully", "invitations were sent to all members!");
         return invitesNotSent;
     }
 
-    public void acceptFamilyInvitation(Long familyCode, Long roleFamily, String userCode) {
-        var user = tokenService.redeemSecurityUserToken(userCode);
-        Family family = familyRepository.findById(familyCode).orElseThrow(() -> new EntityNotFoundException("Family id not found!"));
-        RoleFamily role = RoleFamily.fromId(roleFamily).orElseThrow(() -> new EntityNotFoundException("Role Family id not found!"));
-
-        if (userFamilyRepository.existsByUserAndFamily(user, family)) throw new BusinessRuleException("the user is already part of the "+family.getName());
-
-        UserFamily userFamily = userFamilyRepository.save(new UserFamily(user, family, role));
-        family.addUserFamily(userFamily);
-        familyRepository.flush();
-    }
 }

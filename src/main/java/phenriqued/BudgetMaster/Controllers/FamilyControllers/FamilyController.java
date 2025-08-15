@@ -33,11 +33,10 @@ public class FamilyController {
         }
     }
 
-    @PostMapping("/add/user")
-    public ResponseEntity<?> addFamilyMembers(@RequestParam("user") String userCode,@RequestParam("familyCode") Long familyCode,
-                                              @RequestParam(value = "roleId") Long roleFamily){
+    @PostMapping("/invitations/accept")
+    public ResponseEntity<?> addFamilyMembers(@RequestParam("code") String tokenFamily){
         try{
-            service.acceptFamilyInvitation(familyCode, roleFamily, userCode);
+            service.acceptFamilyInvitation(tokenFamily);
             return ResponseEntity.noContent().build();
         }catch (BusinessRuleException e ){
             return ResponseEntity.badRequest().body(e.getMessage());

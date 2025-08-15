@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterUnauthorizedException;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
+import phenriqued.BudgetMaster.Models.FamilyEntity.Family;
+import phenriqued.BudgetMaster.Models.UserEntity.User;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -35,6 +37,21 @@ public class JWTService {
         }
     }
 
+    public String generatedJwtAtFamily(User user, Family family, Long roleId){
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(secret);
+            return JWT.create()
+                    .withIssuer("Budget_Master-Family")
+                    .withSubject(user.getEmail())
+                    .withExpiresAt(expirationToken(4320L))
+                    .withClaim("familyId", family.getId())
+                    .withClaim("roleId", roleId)
+                    .sign(algorithm);
+        } catch (JWTCreationException exception){
+            throw new BudgetMasterSecurityException("[ERROR] Error creating a JWT Token: " +exception.getMessage());
+        }
+    }
+
     public String tokenJWTValidation(String tokenJwt){
         DecodedJWT decodedJWT;
         try {
@@ -46,6 +63,19 @@ public class JWTService {
 
             decodedJWT = verifier.verify(tokenJwt);
             return decodedJWT.getSubject();
+        } catch (JWTVerificationException exception){
+            throw new BudgetMasterUnauthorizedException(exception.getMessage());
+        }
+    }
+
+    public DecodedJWT tokenJWTFamilyValidation(String tokenJwt){
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(secret);
+            JWTVerifier verifier = JWT.require(algorithm)
+                    .withIssuer("Budget_Master-Family")
+                    .build();
+
+            return verifier.verify(tokenJwt);
         } catch (JWTVerificationException exception){
             throw new BudgetMasterUnauthorizedException(exception.getMessage());
         }
