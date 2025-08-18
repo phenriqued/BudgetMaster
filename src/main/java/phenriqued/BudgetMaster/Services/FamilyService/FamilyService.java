@@ -3,6 +3,7 @@ package phenriqued.BudgetMaster.Services.FamilyService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import phenriqued.BudgetMaster.DTOs.Family.*;
 import phenriqued.BudgetMaster.Infra.Email.FamilyEmailService;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
@@ -11,6 +12,7 @@ import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
 import phenriqued.BudgetMaster.Models.FamilyEntity.Family;
 import phenriqued.BudgetMaster.Models.FamilyEntity.RoleFamily;
 import phenriqued.BudgetMaster.Models.FamilyEntity.UserFamily;
+import phenriqued.BudgetMaster.Models.UserEntity.User;
 import phenriqued.BudgetMaster.Repositories.FamilyRepositories.FamilyRepository;
 import phenriqued.BudgetMaster.Repositories.FamilyRepositories.UserFamilyRepository;
 import phenriqued.BudgetMaster.Services.Security.TokensService.TokenService;
@@ -37,6 +39,20 @@ public class FamilyService {
         this.tokenService = tokenService;
     }
 
+    public List<ResponseAllFamiliesDTO> getAllFamiliesByUser(UserDetailsImpl userDetails) {
+        return userFamilyRepository.findAllFamilyByUser(userDetails.getUser()).stream()
+                .map(ResponseAllFamiliesDTO::new).toList();
+    }
+
+    public ResponseGetFamilyDTO getFamilyById(Long id, UserDetailsImpl userDetails) {
+        var user = userDetails.getUser();
+        var family = validateFamilyAccess(id, user);
+
+        var userMemberFamily = userFamilyRepository.findAllByFamily(family).stream().map(ResponseUserFamilyDTO::new).toList();
+        return new ResponseGetFamilyDTO(family.getName(), userMemberFamily);
+    }
+
+    @Transactional
     public ResponseCreatedFamilyDTO createFamily(UserDetailsImpl userDetails, RequestCreateFamilyDTO createFamilyDTO){
         var user = userDetails.getUser();
         int ownerCount =  user.getFamily().stream().filter(userFamily -> userFamily.getRoleFamily().equals(RoleFamily.OWNER)).toList().size();
@@ -72,6 +88,21 @@ public class FamilyService {
         familyRepository.flush();
     }
 
+    @Transactional
+    public void deleteFamilyByIdAndUser(Long id, UserDetailsImpl userDetails) {
+        User user = userDetails.getUser();
+        var family = validateFamilyAccess(id, user);
+        family.getUserFamilies().stream()
+                .filter(userfamily -> userfamily.getUser().getId().equals(user.getId()))
+                .filter(userfamily -> userfamily.getRoleFamily().equals(RoleFamily.OWNER))
+                .findFirst().orElseThrow(() -> new BudgetMasterSecurityException("only Owner can delete."));
+
+        var familyMembers = userFamilyRepository.findAllByFamily(family);
+        family.getUserFamilies().removeAll(familyMembers);
+        familyRepository.deleteById(family.getId());
+        familyMembers.forEach(userFamily -> familyEmailService.deletionNotice(userFamily.getUser(), family));
+    }
+
     private Map<String, String> invitedFamilyMembers(List<FamilyMemberDTO> memberList, Family family, UserFamily userOwner){
         Map<String, String> invitesNotSent = new HashMap<>();
         for (FamilyMemberDTO member : memberList){
@@ -90,17 +121,9 @@ public class FamilyService {
         return invitesNotSent;
     }
 
-    public List<ResponseAllFamiliesDTO> getAllFamiliesByUser(UserDetailsImpl userDetails) {
-        return userFamilyRepository.findAllFamilyByUser(userDetails.getUser()).stream()
-                .map(ResponseAllFamiliesDTO::new).toList();
-    }
-
-    public ResponseGetFamilyDTO getFamilyById(Long id, UserDetailsImpl userDetails) {
-        var user = userDetails.getUser();
+    private Family validateFamilyAccess(Long id, User user){
         var family = familyRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Family Id not found!"));
         if (!userFamilyRepository.existsByUserAndFamily(user, family)) throw new BudgetMasterSecurityException("family id does not belong to user");
-
-        var userMemberFamily = userFamilyRepository.findAllByFamily(family).stream().map(ResponseUserFamilyDTO::new).toList();
-        return new ResponseGetFamilyDTO(family.getName(), userMemberFamily);
+        return family;
     }
 }

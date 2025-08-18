@@ -40,6 +40,16 @@ public class FamilyEmailService {
         emailService.sendMail(user.getEmail(), subject, content);
     }
 
+    public void deletionNotice(User user, Family family){
+        String subject =  "O grupo "+ family.getName() +" foi excluído!";
+        String content = "Olá, [[name]].<br>"
+                +"Avisando que, o grupo "+family.getName()+" do qual você fazia parte foi excluído."
+                +"Agradecemos por ter usado o Budget Master. Se tiver alguma dúvida, por favor, entre em contato com nossa equipe de suporte.<br>"
+                +"Atenciosamente,<br>"
+                +"Budget Master";
+        emailService.sendMail(user.getEmail(), subject, content);
+    }
+
     private String getRoleDescription(RoleFamily roleFamily) {
         if (roleFamily.equals(RoleFamily.MEMBER)) {
             return "Neste grupo, você será um **membro**, e poderá adicionar e visualizar suas próprias despesas e receitas, que serão compartilhadas com o grupo.";

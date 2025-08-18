@@ -23,7 +23,7 @@ public class Family {
     private Long id;
     @Setter
     private String name;
-    @OneToMany(mappedBy = "family")
+    @OneToMany(mappedBy = "family", orphanRemoval = true, fetch = FetchType.EAGER)
     private List<UserFamily> userFamilies = new ArrayList<>();
 
     public Family(RequestCreateFamilyDTO familyDTO) {

@@ -56,5 +56,10 @@ public class FamilyController {
         }
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteFamily(@PathVariable(value = "id") Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        service.deleteFamilyByIdAndUser(id, userDetails);
+        return ResponseEntity.noContent().build();
+    }
 
 }
