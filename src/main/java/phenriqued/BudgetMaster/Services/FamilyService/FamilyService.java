@@ -3,11 +3,9 @@ package phenriqued.BudgetMaster.Services.FamilyService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import phenriqued.BudgetMaster.DTOs.Family.FamilyMemberDTO;
-import phenriqued.BudgetMaster.DTOs.Family.RequestCreateFamilyDTO;
-import phenriqued.BudgetMaster.DTOs.Family.ResponseCreatedFamilyDTO;
-import phenriqued.BudgetMaster.DTOs.Family.ResponseUserFamilyDTO;
+import phenriqued.BudgetMaster.DTOs.Family.*;
 import phenriqued.BudgetMaster.Infra.Email.FamilyEmailService;
+import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BusinessRuleException;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
 import phenriqued.BudgetMaster.Models.FamilyEntity.Family;
@@ -92,4 +90,17 @@ public class FamilyService {
         return invitesNotSent;
     }
 
+    public List<ResponseAllFamiliesDTO> getAllFamiliesByUser(UserDetailsImpl userDetails) {
+        return userFamilyRepository.findAllFamilyByUser(userDetails.getUser()).stream()
+                .map(ResponseAllFamiliesDTO::new).toList();
+    }
+
+    public ResponseGetFamilyDTO getFamilyById(Long id, UserDetailsImpl userDetails) {
+        var user = userDetails.getUser();
+        var family = familyRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Family Id not found!"));
+        if (!userFamilyRepository.existsByUserAndFamily(user, family)) throw new BudgetMasterSecurityException("family id does not belong to user");
+
+        var userMemberFamily = userFamilyRepository.findAllByFamily(family).stream().map(ResponseUserFamilyDTO::new).toList();
+        return new ResponseGetFamilyDTO(family.getName(), userMemberFamily);
+    }
 }

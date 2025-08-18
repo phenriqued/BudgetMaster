@@ -6,11 +6,14 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import phenriqued.BudgetMaster.DTOs.Family.RequestCreateFamilyDTO;
+import phenriqued.BudgetMaster.DTOs.Family.ResponseAllFamiliesDTO;
+import phenriqued.BudgetMaster.DTOs.Family.ResponseGetFamilyDTO;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BusinessRuleException;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
 import phenriqued.BudgetMaster.Services.FamilyService.FamilyService;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/family")
@@ -20,6 +23,16 @@ public class FamilyController {
 
     public FamilyController(FamilyService service) {
         this.service = service;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ResponseAllFamiliesDTO>> getAllFamily(@AuthenticationPrincipal UserDetailsImpl userDetails){
+        return ResponseEntity.ok(service.getAllFamiliesByUser(userDetails));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseGetFamilyDTO> getFamilyById(@PathVariable(value = "id") Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return ResponseEntity.ok(service.getFamilyById(id, userDetails));
     }
 
     @PostMapping
