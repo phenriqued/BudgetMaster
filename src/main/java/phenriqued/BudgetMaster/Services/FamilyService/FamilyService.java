@@ -92,10 +92,9 @@ public class FamilyService {
     public void deleteFamilyByIdAndUser(Long id, UserDetailsImpl userDetails) {
         User user = userDetails.getUser();
         var family = validateFamilyAccess(id, user);
-        family.getUserFamilies().stream()
-                .filter(userfamily -> userfamily.getUser().getId().equals(user.getId()))
-                .filter(userfamily -> userfamily.getRoleFamily().equals(RoleFamily.OWNER))
-                .findFirst().orElseThrow(() -> new BudgetMasterSecurityException("only Owner can delete."));
+
+        if(!userFamilyRepository.existsByFamilyAndUserAndRoleFamily(family, user, RoleFamily.OWNER))
+            throw new BudgetMasterSecurityException("only Owner can delete.");
 
         var familyMembers = userFamilyRepository.findAllByFamily(family);
         family.getUserFamilies().removeAll(familyMembers);

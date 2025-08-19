@@ -21,7 +21,6 @@ public class Family {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Setter
     private String name;
     @OneToMany(mappedBy = "family", orphanRemoval = true, fetch = FetchType.EAGER)
     private List<UserFamily> userFamilies = new ArrayList<>();
@@ -33,6 +32,14 @@ public class Family {
     public void addUserFamily(UserFamily userFamily){
         if(Objects.isNull(userFamily)) throw new NullPointerException("[INTERNAL ERROR] User cannot be null");
         userFamilies.add(userFamily);
+    }
+
+    public void setName(String name){
+        if (name != null && ! name.trim().isBlank()){
+            this.name = name;
+            return;
+        }
+        throw new NullPointerException("Family Name cannot be null or empty");
     }
 
 }
