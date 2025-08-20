@@ -51,6 +51,19 @@ public class JWTService {
             throw new BudgetMasterSecurityException("[ERROR] Error creating a JWT Token: " +exception.getMessage());
         }
     }
+    public String generatedJwtAtFamily(Family family, Long roleId){
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(secret);
+            return JWT.create()
+                    .withIssuer("Budget_Master-Family")
+                    .withExpiresAt(expirationToken(5L))
+                    .withClaim("familyId", family.getId())
+                    .withClaim("roleId", roleId)
+                    .sign(algorithm);
+        } catch (JWTCreationException exception){
+            throw new BudgetMasterSecurityException("[ERROR] Error creating a JWT Token: " +exception.getMessage());
+        }
+    }
 
     public String tokenJWTValidation(String tokenJwt){
         DecodedJWT decodedJWT;

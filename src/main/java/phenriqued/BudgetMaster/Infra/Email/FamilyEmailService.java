@@ -20,12 +20,12 @@ public class FamilyEmailService {
         this.tokenService = tokenService;
     }
 
-    public void invitedMember(User user, Family family, RoleFamily roleFamily, UserFamily userOwner){
-        String code = tokenService.generatedTokenJwtAtFamily(user, family, roleFamily.id);
-        String subject = userOwner.getUser().getName()+" está de convidando para fazer parte da "+ family.getName();
+    public void invitedMember(User GuestUser, Family family, RoleFamily roleFamily, User userOwner){
+        String code = tokenService.generatedTokenJwtAtFamily(GuestUser, family, roleFamily.id);
+        String subject = userOwner.getName()+" está de convidando para fazer parte da "+ family.getName();
         String content = generateEmailContent(
-                "Olá " + user.getName() + ",<br><br>"
-                        + userOwner.getUser().getName() + " te convidou para o grupo **" + family.getName() + "** no Budget Master.<br><br>"
+                "Olá " + GuestUser.getName() + ",<br><br>"
+                        + userOwner.getName() + " te convidou para o grupo **" + family.getName() + "** no Budget Master.<br><br>"
                         + getRoleDescription(roleFamily) + "<br><br>"
                         + "Para aceitar o convite, basta clicar no botão abaixo:<br><br>"
                         + "<a href=\" [[URL]] \" style=\"background-color:#007BFF;color:#ffffff;padding:10px 20px;text-decoration:none;border-radius:5px;display:inline-block;\">Aceitar convite</a><br><br>"
@@ -35,9 +35,9 @@ public class FamilyEmailService {
                         + "Aproveite para organizar suas finanças com o Budget Master!<br><br>"
                         + "Atenciosamente,<br>"
                         + "Equipe Budget Master"
-        ,user.getName() , URL_SITE+"/family/invitations/accept?code="+code);
+        ,GuestUser.getName() , URL_SITE+"/families/invitations/accept?code="+code);
 
-        emailService.sendMail(user.getEmail(), subject, content);
+        emailService.sendMail(GuestUser.getEmail(), subject, content);
     }
 
     public void deletionNotice(User user, Family family){

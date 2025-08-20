@@ -64,7 +64,7 @@ public class FamilyService {
         UserFamily userFamily = userFamilyRepository.save(new UserFamily(user, family, RoleFamily.OWNER));
         family.addUserFamily(userFamily);
 
-        var invitesNotSent = invitedFamilyMembers(createFamilyDTO.members(), family, userFamily);
+        var invitesNotSent = invitedFamilyMembers(createFamilyDTO.members(), family, user);
 
         familyRepository.flush();
         var userFamilyDTO = new ResponseUserFamilyDTO(userFamily);
@@ -102,7 +102,7 @@ public class FamilyService {
         familyMembers.forEach(userFamily -> familyEmailService.deletionNotice(userFamily.getUser(), family));
     }
 
-    private Map<String, String> invitedFamilyMembers(List<FamilyMemberDTO> memberList, Family family, UserFamily userOwner){
+    private Map<String, String> invitedFamilyMembers(List<FamilyMemberDTO> memberList, Family family, User userOwner){
         Map<String, String> invitesNotSent = new HashMap<>();
         for (FamilyMemberDTO member : memberList){
             try{

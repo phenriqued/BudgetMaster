@@ -40,6 +40,9 @@ public class TokenService {
     public String generatedTokenJwtAtFamily(User user, Family family, Long roleId){
         return jwtService.generatedJwtAtFamily(user, family, roleId);
     }
+    public String generatedTokenJwtAtFamily(Family family, Long roleId){
+        return jwtService.generatedJwtAtFamily(family, roleId);
+    }
 
     public String validationTokenJWT(String tokenJwt){
         return jwtService.tokenJWTValidation(tokenJwt);

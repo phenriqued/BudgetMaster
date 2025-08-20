@@ -16,7 +16,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/family")
+@RequestMapping("/families")
 public class FamilyController {
 
     private final FamilyService service;

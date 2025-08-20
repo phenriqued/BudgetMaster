@@ -1,15 +1,19 @@
 package phenriqued.BudgetMaster.Controllers.FamilyControllers;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
+import phenriqued.BudgetMaster.DTOs.Family.AddFamilyMemberDTO;
+import phenriqued.BudgetMaster.DTOs.Family.RoleIdFamilyDTO;
 import phenriqued.BudgetMaster.DTOs.Family.UpdateFamilyNameDTO;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
 import phenriqued.BudgetMaster.Services.FamilyService.FamilyConfigService;
 
 
 @RestController
-@RequestMapping("/family/settings")
+@RequestMapping("/families/{id}")
 public class FamilyConfigurationController {
 
     private final FamilyConfigService service;
@@ -18,11 +22,38 @@ public class FamilyConfigurationController {
         this.service = service;
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<?> updateFamilyName(@PathVariable("id") Long id, @RequestBody UpdateFamilyNameDTO updateDTO,
+    @PatchMapping
+    public ResponseEntity<Void> updateFamilyName(@PathVariable("id") Long id, @RequestBody UpdateFamilyNameDTO updateDTO,
                                              @AuthenticationPrincipal UserDetailsImpl userDetails){
         service.updateFamilyName(id, updateDTO, userDetails);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/invitations/generate/email")
+    public ResponseEntity<?> addFamilyMembers(@PathVariable("id") Long id, @RequestBody @Valid AddFamilyMemberDTO addFamilyMemberDTO,
+                                              @AuthenticationPrincipal UserDetailsImpl userDetails){
+        try{
+            service.addFamilyMemberByEmail(id, addFamilyMemberDTO, userDetails);
+            return ResponseEntity.ok().build();
+        }catch (UsernameNotFoundException exception){
+            return ResponseEntity.badRequest().body(exception.getMessage());
+        }
+    }
+
+    @PostMapping("/invitations/generate/qrCode")
+    public ResponseEntity<String> addFamilyMembersWithQrCode(@PathVariable("id") Long id, @RequestBody @Valid RoleIdFamilyDTO roleIdFamilyDTO,
+                                                             @AuthenticationPrincipal UserDetailsImpl userDetails){
+        String urlQrCode = service.addFamilyMembersByQrCode(id, roleIdFamilyDTO, userDetails);
+        return ResponseEntity.ok(urlQrCode);
+    }
+
+    @PostMapping("/invitations/accept")
+    public ResponseEntity<Void> acceptInvitationByQrCode(@PathVariable("id") Long id, @RequestParam("access") String access,
+                                                         @AuthenticationPrincipal UserDetailsImpl userDetails){
+        service.acceptInvitationByQrCode(id, access,userDetails);
+        return ResponseEntity.ok().build();
+    }
+
+
 
 }

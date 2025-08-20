@@ -43,7 +43,7 @@ public class SecurityConfiguration {
                             authRequest.requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll();
                             authRequest.requestMatchers("/login/**", "account/manager/change-password-to-activate").permitAll();
                             authRequest.requestMatchers("/account/two-factor-auth/resend-code").permitAll();
-                            authRequest.requestMatchers("/family/invitations/accept").permitAll();
+                            authRequest.requestMatchers("/families/invitations/accept").permitAll();
                             authRequest.anyRequest().authenticated();
                         }
                 )
