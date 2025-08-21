@@ -74,5 +74,11 @@ public class FamilyConfigurationController {
         }
     }
 
+    @DeleteMapping("/member/me")
+    public ResponseEntity<Void> leaveFamily(@PathVariable("id") Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        service.leaveFamily(id, userDetails);
+        return ResponseEntity.noContent().build();
+    }
+
 
 }

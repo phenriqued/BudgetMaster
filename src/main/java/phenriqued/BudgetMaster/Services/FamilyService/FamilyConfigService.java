@@ -18,6 +18,8 @@ import phenriqued.BudgetMaster.Repositories.FamilyRepositories.UserFamilyReposit
 import phenriqued.BudgetMaster.Services.Security.TokensService.TokenService;
 import phenriqued.BudgetMaster.Services.UserServices.UserService;
 
+import java.util.Comparator;
+
 @Service
 @AllArgsConstructor
 public class FamilyConfigService {
@@ -101,6 +103,25 @@ public class FamilyConfigService {
             throw new BudgetMasterSecurityException("Unable to delete");
         family.removeUserFamily(deleteMember);
         userFamilyRepository.deleteById(deleteMember.getId());
+    }
+
+    public void leaveFamily(Long id, UserDetailsImpl userDetails) {
+        var user = userDetails.getUser();
+        var family = validateFamilyAccess(id, user);
+        var userFamily = userFamilyRepository.findByUserAndFamily(user, family).orElseThrow(EntityNotFoundException::new);
+
+        if(userFamily.getRoleFamily().equals(RoleFamily.OWNER)){
+            var newOwnerMember = family.getUserFamilies().stream()
+                    .filter(userMember -> userMember.getRoleFamily().equals(RoleFamily.MEMBER))
+                    .min(Comparator.comparing(UserFamily::getJoinedAt));
+            if(newOwnerMember.isEmpty()){
+                familyRepository.deleteById(family.getId());
+                return;
+            }
+            newOwnerMember.get().setRoleFamily(RoleFamily.OWNER);
+        }
+        family.removeUserFamily(userFamily);
+        userFamilyRepository.deleteById(user.getId());
     }
 
     private void ensureUserIsFamilyOwner(Family family, User user){
