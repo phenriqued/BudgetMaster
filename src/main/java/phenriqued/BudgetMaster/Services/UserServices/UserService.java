@@ -71,6 +71,9 @@ public class UserService {
     public User findUserByEmail(String email){
         return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User cannot be found"));
     }
+    public User findUserById(Long id){
+        return userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User cannot be found"));
+    }
 
     private void matchesCurrentPassword(String confirmationPasswordUser, User user){
         if(!passwordEncoder.matches(confirmationPasswordUser, user.getPassword())){

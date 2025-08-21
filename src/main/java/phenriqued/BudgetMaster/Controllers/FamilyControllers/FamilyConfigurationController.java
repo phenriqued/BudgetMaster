@@ -5,9 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
-import phenriqued.BudgetMaster.DTOs.Family.AddFamilyMemberDTO;
-import phenriqued.BudgetMaster.DTOs.Family.RoleIdFamilyDTO;
-import phenriqued.BudgetMaster.DTOs.Family.UpdateFamilyNameDTO;
+import phenriqued.BudgetMaster.DTOs.Family.*;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
 import phenriqued.BudgetMaster.Services.FamilyService.FamilyConfigService;
 
@@ -22,11 +20,11 @@ public class FamilyConfigurationController {
         this.service = service;
     }
 
-    @PatchMapping
+    @PatchMapping("/name")
     public ResponseEntity<Void> updateFamilyName(@PathVariable("id") Long id, @RequestBody UpdateFamilyNameDTO updateDTO,
                                              @AuthenticationPrincipal UserDetailsImpl userDetails){
         service.updateFamilyName(id, updateDTO, userDetails);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/invitations/generate/email")
@@ -54,6 +52,27 @@ public class FamilyConfigurationController {
         return ResponseEntity.ok().build();
     }
 
+    @PatchMapping("/role")
+    public ResponseEntity<?> updateFamilyMemberRole(@PathVariable("id") Long id, @RequestBody @Valid UpdateRoleIdFamilyDTO updateRoleDTO,
+                                                    @AuthenticationPrincipal UserDetailsImpl userDetails){
+        try{
+            service.updateFamilyRole(id, updateRoleDTO, userDetails);
+            return ResponseEntity.ok().build();
+        }catch (UsernameNotFoundException exception){
+            return ResponseEntity.badRequest().body(exception.getMessage());
+        }
+    }
+
+    @DeleteMapping("/delete/member")
+    public ResponseEntity<?> deleteFamilyMember(@PathVariable("id") Long id, @RequestBody @Valid FamilyMemberIdDTO familyMemberIdDTO,
+                                                   @AuthenticationPrincipal UserDetailsImpl userDetails){
+        try{
+            service.deleteFamilyMember(id, familyMemberIdDTO, userDetails);
+            return ResponseEntity.noContent().build();
+        }catch (UsernameNotFoundException exception){
+            return ResponseEntity.badRequest().body(exception.getMessage());
+        }
+    }
 
 
 }

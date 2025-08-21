@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import phenriqued.BudgetMaster.Models.UserEntity.User;
 
 import java.time.LocalDate;
@@ -25,6 +26,7 @@ public class UserFamily {
     @ManyToOne
     @JoinColumn(name = "family_id")
     private Family family;
+    @Setter
     @Enumerated(EnumType.STRING)
     private RoleFamily roleFamily;
     private LocalDate joinedAt;

@@ -34,6 +34,11 @@ public class Family {
         userFamilies.add(userFamily);
     }
 
+    public void removeUserFamily(UserFamily userFamily){
+        if(Objects.isNull(userFamily)) throw new NullPointerException("[INTERNAL ERROR] User cannot be null");
+        userFamilies.remove(userFamily);
+    }
+
     public void setName(String name){
         if (name != null && ! name.trim().isBlank()){
             this.name = name;

@@ -21,4 +21,6 @@ public interface UserFamilyRepository extends JpaRepository<UserFamily, Long> {
     @Query("SELECT families.family FROM UserFamily families WHERE families.user = ?1")
     List<Family> findAllFamilyByUser(User user);
 
+    Optional<UserFamily> findByUserAndFamily(User user, Family family);
+
 }
