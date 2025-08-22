@@ -59,7 +59,7 @@ public class FamilyService {
         if(ownerCount >= 5){
             throw new BusinessRuleException("The user has more than five \"Families\" created");
         }
-
+        if (createFamilyDTO.members().isEmpty()) throw new BusinessRuleException("it is necessary to add at least one member to the family");
         var family = familyRepository.save(new Family(createFamilyDTO));
         UserFamily userFamily = userFamilyRepository.save(new UserFamily(user, family, RoleFamily.OWNER));
         family.addUserFamily(userFamily);

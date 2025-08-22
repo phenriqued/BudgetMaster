@@ -23,4 +23,7 @@ public interface UserFamilyRepository extends JpaRepository<UserFamily, Long> {
 
     Optional<UserFamily> findByUserAndFamily(User user, Family family);
 
+    List<UserFamily> findAllByUser(User user);
+
+    void deleteAllByUser(User user);
 }

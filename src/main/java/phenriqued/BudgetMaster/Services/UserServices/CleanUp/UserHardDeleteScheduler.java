@@ -7,8 +7,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import phenriqued.BudgetMaster.Infra.Email.UserEmailService;
-import phenriqued.BudgetMaster.Repositories.Security.SecurityUserTokenRepository;
 import phenriqued.BudgetMaster.Repositories.UserRepository.UserRepository;
+import phenriqued.BudgetMaster.Services.FamilyService.FamilyConfigService;
 
 import java.time.LocalDateTime;
 
@@ -21,13 +21,13 @@ public class UserHardDeleteScheduler {
     private final long HOUR = 60000 * 60;
 
     private final UserRepository userRepository;
-    private final SecurityUserTokenRepository userTokenRepository;
     private final UserEmailService userEmailService;
+    private final FamilyConfigService familyConfigService;
 
-    public UserHardDeleteScheduler(UserRepository userRepository, SecurityUserTokenRepository userTokenRepository, UserEmailService userEmailService) {
+    public UserHardDeleteScheduler(UserRepository userRepository, UserEmailService userEmailService, FamilyConfigService familyConfigService) {
         this.userRepository = userRepository;
-        this.userTokenRepository = userTokenRepository;
         this.userEmailService = userEmailService;
+        this.familyConfigService = familyConfigService;
     }
 
     @Transactional
@@ -35,13 +35,16 @@ public class UserHardDeleteScheduler {
     void automaticHardDeleteUser(){
         LOGGER.info("Starting automatic scanning and deletion of disabled users!");
 
-        userRepository.findByDeleteAtIsNotNull().ifPresent(userList ->
-                userList.stream().filter(user -> expirationDate(user.getDeleteAt()))
-                    .forEach(user -> {
-                        user.getSecurityUserTokens().clear();
-                        userRepository.deleteById(user.getId());
-                        userEmailService.sendHardDeleteUser(user);
-                }));
+        userRepository.findByDeleteAtIsNotNull().ifPresent(
+                userList -> userList.stream().filter(user -> expirationDate(user.getDeleteAt()))
+                        .forEach(user -> {
+                            familyConfigService.hardDeleteUserFamily(user);
+                            user.getSecurityUserTokens().clear();
+                            userRepository.deleteById(user.getId());
+                            userEmailService.sendHardDeleteUser(user);
+                        })
+        );
+
         LOGGER.info("Finishing automatic scanning and deletion of disabled users!");
     }
 

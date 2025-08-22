@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import phenriqued.BudgetMaster.DTOs.Family.*;
 import phenriqued.BudgetMaster.Infra.Email.FamilyEmailService;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
@@ -19,6 +20,7 @@ import phenriqued.BudgetMaster.Services.Security.TokensService.TokenService;
 import phenriqued.BudgetMaster.Services.UserServices.UserService;
 
 import java.util.Comparator;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -121,9 +123,35 @@ public class FamilyConfigService {
             newOwnerMember.get().setRoleFamily(RoleFamily.OWNER);
         }
         family.removeUserFamily(userFamily);
-        userFamilyRepository.deleteById(user.getId());
+        userFamilyRepository.deleteById(userFamily.getId());
     }
 
+    @Transactional
+    public void hardDeleteUserFamily(User user){
+        List<UserFamily> familyList = userFamilyRepository.findAllByUser(user);
+        List<Family> ownerFamilyList = familyList.stream()
+                .filter(userMember -> userMember.getRoleFamily().equals(RoleFamily.OWNER))
+                .map(UserFamily::getFamily).toList();
+        if (ownerFamilyList.isEmpty()){
+            userFamilyRepository.deleteAllByUser(user);
+            return;
+        }
+
+        for (Family formerOwner : ownerFamilyList){
+            var userFamily = userFamilyRepository.findByUserAndFamily(user, formerOwner).orElseThrow();
+            var newOwnerMember = formerOwner.getUserFamilies().stream()
+                    .filter(userMember -> userMember.getRoleFamily().equals(RoleFamily.MEMBER))
+                    .min(Comparator.comparing(UserFamily::getJoinedAt));
+            if(newOwnerMember.isEmpty()){
+                familyRepository.deleteById(formerOwner.getId());
+            }else {
+                newOwnerMember.get().setRoleFamily(RoleFamily.OWNER);
+                formerOwner.removeUserFamily(userFamily);
+                userFamilyRepository.deleteById(userFamily.getId());
+            }
+        }
+
+    }
     private void ensureUserIsFamilyOwner(Family family, User user){
         if(!userFamilyRepository.existsByFamilyAndUserAndRoleFamily(family, user, RoleFamily.OWNER))
             throw new BudgetMasterSecurityException("You do not have permission to perform the operation");
