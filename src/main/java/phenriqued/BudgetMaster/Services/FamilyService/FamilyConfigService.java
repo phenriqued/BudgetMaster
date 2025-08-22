@@ -152,6 +152,12 @@ public class FamilyConfigService {
         }
 
     }
+    public Family validateFamilyAccess(Long id, User user) {
+        var family = familyRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Family Id not found!"));
+        if (!userFamilyRepository.existsByUserAndFamily(user, family))
+            throw new BudgetMasterSecurityException("family id does not belong to user");
+        return family;
+    }
     private void ensureUserIsFamilyOwner(Family family, User user){
         if(!userFamilyRepository.existsByFamilyAndUserAndRoleFamily(family, user, RoleFamily.OWNER))
             throw new BudgetMasterSecurityException("You do not have permission to perform the operation");
@@ -160,12 +166,6 @@ public class FamilyConfigService {
         var roleFamily = RoleFamily.fromId(roleId).orElseThrow(() -> new EntityNotFoundException("Role Family not found!"));
         if(roleFamily.equals(RoleFamily.OWNER)) throw new BusinessRuleException("Unable to add a member as OWNER at this time");
         return roleFamily;
-    }
-    private Family validateFamilyAccess(Long id, User user) {
-        var family = familyRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Family Id not found!"));
-        if (!userFamilyRepository.existsByUserAndFamily(user, family))
-            throw new BudgetMasterSecurityException("family id does not belong to user");
-        return family;
     }
     private void validateUserInTheFamily(User user, Family family) {
         if (userFamilyRepository.existsByUserAndFamily(user, family))
