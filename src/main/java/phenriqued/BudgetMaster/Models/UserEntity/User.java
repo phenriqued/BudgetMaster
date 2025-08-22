@@ -37,13 +37,11 @@ public class User {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REFRESH ,fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<UserFamily> family = new ArrayList<>();
     private Boolean isActive;
     private LocalDate createdAt;
     private LocalDateTime deleteAt;
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Income> incomes = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<SecurityUserToken> securityUserTokens = new ArrayList<>();
