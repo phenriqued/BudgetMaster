@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import phenriqued.BudgetMaster.DTOs.Family.Income.ResponseFamilyIncomeDTO;
+import phenriqued.BudgetMaster.DTOs.Family.Income.ResponseFamilyTotalDTO;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
 import phenriqued.BudgetMaster.Services.FamilyService.FamilyIncomeService;
 
@@ -21,8 +21,8 @@ public class FamilyIncomeController {
     }
 
     @GetMapping
-    public ResponseEntity<ResponseFamilyIncomeDTO> listAllIncomeFamily(@PathVariable(value = "id") Long id,
-                                                                       @AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseEntity<ResponseFamilyTotalDTO> listAllIncomeFamily(@PathVariable(value = "id") Long id,
+                                                                      @AuthenticationPrincipal UserDetailsImpl userDetails){
         return ResponseEntity.ok(familyIncomeService.getAllIncomeFamily(id, userDetails));
     }
 

@@ -2,7 +2,7 @@ package phenriqued.BudgetMaster.DTOs.Family.Income;
 
 import java.math.BigDecimal;
 
-public record MemberIncomeDTO(
+public record MemberFamilyTotalDTO(
         String name,
-        BigDecimal totalIncome) {
+        BigDecimal total) {
 }
