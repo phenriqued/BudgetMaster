@@ -57,7 +57,7 @@ public class ReserveService {
     }
 
 
-    private BigDecimal getIdealReserve(User user){
+    public BigDecimal getIdealReserve(User user){
         BigDecimal amount = expenseRepository.findAllByUser(user).stream().map(Expense::getAmount)
                 .reduce(BigDecimal::add).orElseThrow(()-> new BusinessRuleException("No expenses and/or income registered"));
 

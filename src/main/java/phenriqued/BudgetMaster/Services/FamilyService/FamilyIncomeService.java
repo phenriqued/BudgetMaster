@@ -2,8 +2,8 @@ package phenriqued.BudgetMaster.Services.FamilyService;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import phenriqued.BudgetMaster.DTOs.Family.Income.MemberFamilyTotalDTO;
-import phenriqued.BudgetMaster.DTOs.Family.Income.ResponseFamilyTotalDTO;
+import phenriqued.BudgetMaster.DTOs.Family.FinancialMovement.MemberFamilyTotalDTO;
+import phenriqued.BudgetMaster.DTOs.Family.FinancialMovement.ResponseFamilyTotalDTO;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
 import phenriqued.BudgetMaster.Models.FamilyEntity.RoleFamily;
 import phenriqued.BudgetMaster.Models.FamilyEntity.UserFamily;

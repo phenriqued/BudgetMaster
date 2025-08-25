@@ -1,4 +1,4 @@
-package phenriqued.BudgetMaster.DTOs.Family.Income;
+package phenriqued.BudgetMaster.DTOs.Family.FinancialMovement;
 
 import java.math.BigDecimal;
 
