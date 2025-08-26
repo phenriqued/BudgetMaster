@@ -43,7 +43,7 @@ public class JWTService {
             return JWT.create()
                     .withIssuer("Budget_Master-Family")
                     .withSubject(user.getEmail())
-                    .withExpiresAt(expirationToken(4320L))
+                    .withExpiresAt(expirationToken(1440L))
                     .withClaim("familyId", family.getId())
                     .withClaim("roleId", roleId)
                     .sign(algorithm);

@@ -25,13 +25,13 @@ public class FamilyEmailService {
         String subject = userOwner.getName()+" está de convidando para fazer parte da "+ family.getName();
         String content = generateEmailContent(
                 "Olá " + GuestUser.getName() + ",<br><br>"
-                        + userOwner.getName() + " te convidou para o grupo **" + family.getName() + "** no Budget Master.<br><br>"
+                        + userOwner.getName() + " te convidou para o grupo <strong>" + family.getName() + "</strong> no Budget Master.<br><br>"
                         + getRoleDescription(roleFamily) + "<br><br>"
                         + "Para aceitar o convite, basta clicar no botão abaixo:<br><br>"
                         + "<a href=\" [[URL]] \" style=\"background-color:#007BFF;color:#ffffff;padding:10px 20px;text-decoration:none;border-radius:5px;display:inline-block;\">Aceitar convite</a><br><br>"
                         + "Se preferir, copie e cole o link no seu navegador:<br>"
                         + "<code> [[URL]] </code><br><br>"
-                        + "O convite é válido por **72 horas**. Após esse período, ele será automaticamente negado.<br><br>"
+                        + "O convite é válido por <strong>24 horas<strong>. Após esse período, ele será automaticamente negado.<br><br>"
                         + "Aproveite para organizar suas finanças com o Budget Master!<br><br>"
                         + "Atenciosamente,<br>"
                         + "Equipe Budget Master"

@@ -56,18 +56,25 @@ public class FamilyService {
     public ResponseCreatedFamilyDTO createFamily(UserDetailsImpl userDetails, RequestCreateFamilyDTO createFamilyDTO){
         var user = userDetails.getUser();
         int ownerCount =  user.getFamily().stream().filter(userFamily -> userFamily.getRoleFamily().equals(RoleFamily.OWNER)).toList().size();
-        if(ownerCount >= 5){
-            throw new BusinessRuleException("The user has more than five \"Families\" created");
-        }
-        if (createFamilyDTO.members().isEmpty()) throw new BusinessRuleException("it is necessary to add at least one member to the family");
-        var family = familyRepository.save(new Family(createFamilyDTO));
-        UserFamily userFamily = userFamilyRepository.save(new UserFamily(user, family, RoleFamily.OWNER));
-        family.addUserFamily(userFamily);
 
+        if(ownerCount >= 5) throw new BusinessRuleException("The user has more than five \"Families\" created");
+
+        if (createFamilyDTO.members().isEmpty()) throw new BusinessRuleException("it is necessary to add at least one member to the family");
+
+        var family = new Family(createFamilyDTO);
         var invitesNotSent = invitedFamilyMembers(createFamilyDTO.members(), family, user);
 
+        if (invitesNotSent.size() == createFamilyDTO.members().size())
+            throw new BusinessRuleException("Unable to create a family because only invalid users were added");
+
+        UserFamily userFamily = new UserFamily(user, family, RoleFamily.OWNER);
+
+        familyRepository.save(family);
+        userFamilyRepository.save(userFamily);
+        family.addUserFamily(userFamily);
         familyRepository.flush();
         var userFamilyDTO = new ResponseUserFamilyDTO(userFamily);
+        if (invitesNotSent.isEmpty()) invitesNotSent.put("Invitations sent successfully", "invitations were sent to all members!");
         return new ResponseCreatedFamilyDTO(family, List.of(userFamilyDTO), invitesNotSent);
     }
 
@@ -116,7 +123,6 @@ public class FamilyService {
                 invitesNotSent.put(member.email(), "Role Family - "+member.role()+" - "+ e.getMessage());
             }
         }
-        if (invitesNotSent.isEmpty()) invitesNotSent.put("Invitations sent successfully", "invitations were sent to all members!");
         return invitesNotSent;
     }
 
