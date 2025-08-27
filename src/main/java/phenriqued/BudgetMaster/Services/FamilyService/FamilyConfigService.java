@@ -76,14 +76,15 @@ public class FamilyConfigService {
     }
 
     public void updateFamilyRole(Long id, @Valid UpdateRoleIdFamilyDTO roleIdFamilyDTO, UserDetailsImpl userDetails) {
+        var principalUser = userDetails.getUser();
+        if(principalUser.getId().equals(roleIdFamilyDTO.memberId()))
+            throw new BusinessRuleException("It is not possible to change one's role in the family without passing it on to another member.");
+
         var updateRoleUser = userService.findUserById(roleIdFamilyDTO.memberId());
         var role = RoleFamily.fromId(roleIdFamilyDTO.roleId()).orElseThrow(() -> new EntityNotFoundException("Role Family not found!"));
-        var principalUser = userDetails.getUser();
         var family = validateFamilyAccess(id, principalUser);
         ensureUserIsFamilyOwner(family, principalUser);
         var userFamilyUpdateRole = userFamilyRepository.findByUserAndFamily(updateRoleUser, family).orElseThrow(EntityNotFoundException::new);
-        if(principalUser.getId().equals(roleIdFamilyDTO.memberId()))
-            throw new BudgetMasterSecurityException("It is not possible to change one's role in the family without passing it on to another member.");
         if (role.equals(RoleFamily.OWNER)){
             var ownerMember = userFamilyRepository.findByUserAndFamily(principalUser, family)
                     .orElseThrow(EntityNotFoundException::new);
