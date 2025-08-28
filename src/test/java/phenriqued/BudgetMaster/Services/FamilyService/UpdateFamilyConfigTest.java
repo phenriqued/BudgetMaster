@@ -12,7 +12,6 @@ import phenriqued.BudgetMaster.DTOs.Family.RequestCreateFamilyDTO;
 import phenriqued.BudgetMaster.DTOs.Family.UpdateFamilyNameDTO;
 import phenriqued.BudgetMaster.DTOs.Family.UpdateRoleIdFamilyDTO;
 import phenriqued.BudgetMaster.DTOs.Login.RegisterUserDTO;
-import phenriqued.BudgetMaster.Infra.Email.FamilyEmailService;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BudgetMasterSecurityException;
 import phenriqued.BudgetMaster.Infra.Exceptions.Exception.BusinessRuleException;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
@@ -24,11 +23,9 @@ import phenriqued.BudgetMaster.Models.UserEntity.Role.RoleName;
 import phenriqued.BudgetMaster.Models.UserEntity.User;
 import phenriqued.BudgetMaster.Repositories.FamilyRepositories.FamilyRepository;
 import phenriqued.BudgetMaster.Repositories.FamilyRepositories.UserFamilyRepository;
-import phenriqued.BudgetMaster.Services.Security.TokensService.TokenService;
 import phenriqued.BudgetMaster.Services.UserServices.UserService;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
