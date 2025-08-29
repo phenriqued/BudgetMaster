@@ -51,7 +51,7 @@ class DeleteFamilyMemberAndLeaveFamilyConfigServiceTest {
     private Family familyTest = new Family(new RequestCreateFamilyDTO("Family Test", List.of()));
     UserFamily userOwner = new UserFamily(user, familyTest, RoleFamily.OWNER);
     UserFamily userFamilyMember = new UserFamily(userMember, familyTest, RoleFamily.MEMBER);
-    UserFamily userFamilyViewer = new UserFamily(userMember, familyTest, RoleFamily.VIEWER);
+    UserFamily userFamilyViewer = new UserFamily(userViewer, familyTest, RoleFamily.VIEWER);
 
     @BeforeEach
     public void setup(){
