@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import phenriqued.BudgetMaster.DTOs.EmergencyReserve.ResponseEmergencyReserveDTO;
 import phenriqued.BudgetMaster.Infra.Security.User.UserDetailsImpl;
+import phenriqued.BudgetMaster.Models.FamilyEntity.RoleFamily;
 import phenriqued.BudgetMaster.Models.FamilyEntity.UserFamily;
 import phenriqued.BudgetMaster.Services.EmergencyReserveService.ReserveService;
 
@@ -21,6 +22,7 @@ public class FamilyEmergencyReserveService {
         var user = userDetails.getUser();
         var family = familyConfigService.validateFamilyAccess(idFamily, user);
         var idealReserve = family.getUserFamilies().stream()
+                .filter(userFamily -> userFamily.getRoleFamily() != RoleFamily.VIEWER)
                 .map(UserFamily::getUser)
                 .map(reserveService::getIdealReserve)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);

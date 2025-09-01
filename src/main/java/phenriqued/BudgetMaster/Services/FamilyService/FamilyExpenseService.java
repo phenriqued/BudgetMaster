@@ -20,12 +20,12 @@ public class FamilyExpenseService {
     private final FamilyConfigService familyConfigService;
     private final ExpenseRepository expenseRepository;
 
-    public ResponseFamilyTotalDTO getAllIncomeFamily(Long id, UserDetailsImpl userDetails) {
+    public ResponseFamilyTotalDTO getAllExpenseFamily(Long id, UserDetailsImpl userDetails) {
         var user = userDetails.getUser();
         var family = familyConfigService.validateFamilyAccess(id, user);
 
         List<MemberFamilyTotalDTO> memberExpenseList = family.getUserFamilies().stream()
-                .filter(userFamily -> userFamily.getRoleFamily().equals(RoleFamily.OWNER) || userFamily.getRoleFamily().equals(RoleFamily.MEMBER))
+                .filter(userFamily -> userFamily.getRoleFamily() != RoleFamily.VIEWER)
                 .map(UserFamily::getUser)
                 .map(userExpense -> {
                     BigDecimal total = expenseRepository.findAllByUser(userExpense).stream().map(Expense::getAmount)

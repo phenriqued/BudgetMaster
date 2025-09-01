@@ -23,7 +23,7 @@ public class FamilyExpenseController {
     @GetMapping
     public ResponseEntity<ResponseFamilyTotalDTO> listAllExpenseFamily(@PathVariable(value = "id") Long id,
                                                                        @AuthenticationPrincipal UserDetailsImpl userDetails){
-        return ResponseEntity.ok(familyExpenseService.getAllIncomeFamily(id, userDetails));
+        return ResponseEntity.ok(familyExpenseService.getAllExpenseFamily(id, userDetails));
     }
 
 }
