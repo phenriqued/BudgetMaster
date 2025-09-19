@@ -64,6 +64,7 @@ class TwoFactorAuthControllerTest {
 
     @BeforeEach
     void setup(){
+        userRepository.deleteAll();
         var role = roleRepository.findByName(RoleName.USER).orElseThrow();
         var user = new User(userData, encoder.encode(userData.password()), role);
         user.setIsActive();
@@ -78,7 +79,7 @@ class TwoFactorAuthControllerTest {
     @DisplayName("should start activating two-factor authentication")
     void activeTwoFactorAuthentication() throws Exception{
         var user = userRepository.findByEmail(userData.email()).orElseThrow();
-        var token = tokenService.generatedRefreshTokenAndTokenJWT(new UserDetailsImpl(user), TokenType.WEB, "teste");
+        var token = tokenService.generatedRefreshTokenAndTokenJWT(new UserDetailsImpl(user), TokenType.WEB, "teste"+user.getId());
         String json = new ObjectMapper().writeValueAsString(new Request2faActiveDTO("EMAIL"));
 
         mockMvc.perform(post("/account/two-factor-auth/initiate")
@@ -100,7 +101,7 @@ class TwoFactorAuthControllerTest {
     @DisplayName("should check the code and if 2FA is not activated, you should activate it.")
     void verifyTwoFactorAuthentication() throws Exception{
         var user = userRepository.findByEmail(userData.email()).orElseThrow();
-        var token = tokenService.generatedRefreshTokenAndTokenJWT(new UserDetailsImpl(user), TokenType.WEB, "teste");
+        var token = tokenService.generatedRefreshTokenAndTokenJWT(new UserDetailsImpl(user), TokenType.WEB, user.getName());
         twoFactorAuthService.createTwoFactorAuth(new Request2faActiveDTO("EMAIL"), user.getEmail());
         var twoFactorAuth = twoFactorAuthRepository.findByUserAndType2FA(user, Type2FA.EMAIL).orElseThrow();
         String json = new ObjectMapper().writeValueAsString(new RequestValid2faDTO(twoFactorAuth.getSecret(), "EMAIL"));
